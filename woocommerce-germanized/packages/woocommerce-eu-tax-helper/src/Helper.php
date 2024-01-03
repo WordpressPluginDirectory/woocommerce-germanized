@@ -15,7 +15,7 @@ class Helper {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.0.0';
+	const VERSION = '2.0.1';
 
 	public static function get_version() {
 		return self::VERSION;
@@ -85,34 +85,51 @@ class Helper {
 		);
 	}
 
-	protected static function maybe_apply_tax_rate_changesets() {
-		if ( self::enable_tax_rate_observer() ) {
-			$changes                   = self::get_eu_tax_rate_changesets();
-			$last_applied_changes_date = null;
-			$today                     = new \WC_DateTime();
+	public static function apply_tax_rate_changesets() {
+		$changes                   = self::get_eu_tax_rate_changesets();
+		$last_applied_changes_date = null;
+		$today                     = new \WC_DateTime();
 
-			if ( $last_applied_changes = get_option( 'woocommerce_eu_tax_helper_last_rate_changeset' ) ) {
-				$last_applied_changes_date = wc_string_to_datetime( $last_applied_changes . ' 00:00:00' );
-			}
+		if ( $last_applied_changes = get_option( 'woocommerce_eu_tax_helper_last_rate_changeset' ) ) {
+			$last_applied_changes_date = wc_string_to_datetime( $last_applied_changes . ' 00:00:00' );
+		}
 
-			self::log( sprintf( 'Checking for tax rate changes @ %1$s. Last applied changes: %2$s', $today->date_i18n( 'Y-m-d' ), ( $last_applied_changes_date ? $last_applied_changes_date->date_i18n( 'Y-m-d' ) : '-' ) ) );
+		self::log( sprintf( 'Checking for tax rate changes @ %1$s. Last applied changes: %2$s', $today->date_i18n( 'Y-m-d' ), ( $last_applied_changes_date ? $last_applied_changes_date->date_i18n( 'Y-m-d' ) : '-' ) ) );
 
-			foreach ( $changes as $date => $changeset ) {
-				$changeset_date = wc_string_to_datetime( $date . ' 00:00:00' );
+		foreach ( $changes as $date => $changeset ) {
+			$changeset_date = wc_string_to_datetime( $date . ' 00:00:00' );
 
-				if ( ! $last_applied_changes_date || $changeset_date > $last_applied_changes_date ) {
-					$is_oss    = self::oss_procedure_is_enabled();
-					$countries = array_keys( $changeset );
+			if ( ! $last_applied_changes_date || $changeset_date > $last_applied_changes_date ) {
+				$is_oss    = self::oss_procedure_is_enabled();
+				$countries = array_keys( $changeset );
 
-					if ( $today >= $changeset_date ) {
-						self::log( sprintf( 'Updating tax rates changes for %1$s @ %2$s: %3$s', $changeset_date->date_i18n( 'Y-m-d' ), $today->date_i18n( 'Y-m-d' ), wc_print_r( $changeset, true ) ) );
+				if ( $today >= $changeset_date ) {
+					self::log( sprintf( 'Updating tax rates changes for %1$s @ %2$s: %3$s', $changeset_date->date_i18n( 'Y-m-d' ), $today->date_i18n( 'Y-m-d' ), wc_print_r( $changeset, true ) ) );
 
-						if ( $is_oss ) {
-							foreach ( $countries as $country ) {
-								self::delete_tax_rates_by_country( $country );
+					if ( $is_oss ) {
+						foreach ( $countries as $country ) {
+							self::delete_tax_rates_by_country( $country );
+						}
+
+						$tax_rates = self::generate_tax_rates( true, array(), $changeset, false );
+
+						self::log( sprintf( 'New tax rates: %1$s', wc_print_r( $tax_rates, true ) ) );
+
+						foreach ( $tax_rates as $tax_class_type => $tax_rate_data ) {
+							$class = $tax_rate_data['tax_class'];
+							$rates = $tax_rate_data['rates'];
+
+							self::import_rates( $rates, $class, $tax_class_type, false );
+						}
+					} else {
+						if ( in_array( self::get_base_country(), $countries, true ) ) {
+							$eu_rates = self::get_eu_tax_rates( false );
+
+							foreach ( $changeset as $country => $tax_rates ) {
+								$eu_rates[ $country ] = $tax_rates;
 							}
 
-							$tax_rates = self::generate_tax_rates( true, array(), $changeset, false );
+							$tax_rates = self::generate_tax_rates( false, array(), $eu_rates, false );
 
 							self::log( sprintf( 'New tax rates: %1$s', wc_print_r( $tax_rates, true ) ) );
 
@@ -120,33 +137,20 @@ class Helper {
 								$class = $tax_rate_data['tax_class'];
 								$rates = $tax_rate_data['rates'];
 
-								self::import_rates( $rates, $class, $tax_class_type, false );
-							}
-						} else {
-							if ( in_array( self::get_base_country(), $countries, true ) ) {
-								$eu_rates = self::get_eu_tax_rates( false );
-
-								foreach ( $changeset as $country => $tax_rates ) {
-									$eu_rates[ $country ] = $tax_rates;
-								}
-
-								$tax_rates = self::generate_tax_rates( false, array(), $eu_rates, false );
-
-								self::log( sprintf( 'New tax rates: %1$s', wc_print_r( $tax_rates, true ) ) );
-
-								foreach ( $tax_rates as $tax_class_type => $tax_rate_data ) {
-									$class = $tax_rate_data['tax_class'];
-									$rates = $tax_rate_data['rates'];
-
-									self::import_rates( $rates, $class, $tax_class_type );
-								}
+								self::import_rates( $rates, $class, $tax_class_type );
 							}
 						}
-
-						update_option( 'woocommerce_eu_tax_helper_last_rate_changeset', $date );
 					}
+
+					update_option( 'woocommerce_eu_tax_helper_last_rate_changeset', $date );
 				}
 			}
+		}
+	}
+
+	protected static function maybe_apply_tax_rate_changesets() {
+		if ( self::enable_tax_rate_observer() ) {
+			self::apply_tax_rate_changesets();
 		}
 	}
 
@@ -774,6 +778,15 @@ class Helper {
 					),
 				),
 			),
+			'2024-01-02' => array(
+				'LU' => array(
+					array(
+						'standard'      => 17,
+						'reduced'       => array( 8 ),
+						'super-reduced' => 3,
+					),
+				),
+			),
 		);
 
 		if ( $apply_postcode_exempts ) {
@@ -819,7 +832,7 @@ class Helper {
 			'CZ' => array(
 				array(
 					'standard' => 21,
-					'reduced'  => array( 10, 15 ),
+					'reduced'  => array( 12 ),
 				),
 			),
 			'DE' => array(
@@ -836,7 +849,7 @@ class Helper {
 			),
 			'EE' => array(
 				array(
-					'standard' => 20,
+					'standard' => 22,
 					'reduced'  => array( 9 ),
 				),
 			),
@@ -900,8 +913,8 @@ class Helper {
 			),
 			'LU' => array(
 				array(
-					'standard'      => 16,
-					'reduced'       => array( 7 ),
+					'standard'      => 17,
+					'reduced'       => array( 8 ),
 					'super-reduced' => 3,
 				),
 			),

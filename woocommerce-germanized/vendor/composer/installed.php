@@ -5,7 +5,7 @@
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '039f4d397b23a69d9997e59f831a97a61d1d23bf',
+        'reference' => 'f96e961d24ca0ce9cb7444c4b95f1b59bc911baa',
         'name' => 'vendidero/woocommerce-germanized',
         'dev' => false,
     ),
@@ -131,12 +131,12 @@
             ),
         ),
         'vendidero/woocommerce-eu-tax-helper' => array(
-            'pretty_version' => '2.0.0',
-            'version' => '2.0.0.0',
+            'pretty_version' => '2.0.1',
+            'version' => '2.0.1.0',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../packages/woocommerce-eu-tax-helper',
             'aliases' => array(),
-            'reference' => '8c6ad69aed522aaa16a3c47240669f86dc964936',
+            'reference' => '8017a940a4b12f1f746df81bd26b81d8527f1fbd',
             'dev_requirement' => false,
         ),
         'vendidero/woocommerce-germanized' => array(
@@ -145,7 +145,7 @@
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '039f4d397b23a69d9997e59f831a97a61d1d23bf',
+            'reference' => 'f96e961d24ca0ce9cb7444c4b95f1b59bc911baa',
             'dev_requirement' => false,
         ),
         'vendidero/woocommerce-germanized-dhl' => array(

@@ -999,7 +999,7 @@ return array(
 		'path'    => $baseDir . '/src/Autoloader.php'
 	),
 	'Vendidero\\EUTaxHelper\\Helper' => array(
-		'version' => '2.0.0.0',
+		'version' => '2.0.1.0',
 		'path'    => $baseDir . '/packages/woocommerce-eu-tax-helper/src/Helper.php'
 	),
 	'Psr\\Log\\LoggerAwareInterface' => array(
