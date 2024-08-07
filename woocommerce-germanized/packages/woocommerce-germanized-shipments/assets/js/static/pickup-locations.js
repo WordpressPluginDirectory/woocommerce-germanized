@@ -12,6 +12,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
         params: {},
         pickupLocations: {},
         available: false,
+        currentProvider: '',
 
         init: function () {
             var self  = germanized.shipments_pickup_locations;
@@ -20,7 +21,16 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
             var $pickupSelect = self.getPickupLocationSelect();
 
             if ( $pickupSelect.length > 0 ) {
-                self.pickupLocations = $pickupSelect.data( 'locations' );
+                if ( $pickupSelect.attr( 'data-locations' ) ) {
+                    try {
+                        self.pickupLocations = JSON.parse( $pickupSelect.attr( 'data-locations' ) );
+                    } catch (e) {
+                        self.pickupLocations = {};
+                    }
+                }
+                if ( $pickupSelect.attr( 'data-provider' ) ) {
+                    self.currentProvider = $pickupSelect.attr( 'data-provider' );
+                }
             }
 
             if ( $( '#current_pickup_location' ).length > 0 ) {
@@ -53,9 +63,9 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $pickupSelect = self.getPickupLocationSelect();
 
             if ( $pickupSelect.val() ) {
-                $( '.pickup-location-search-actions' ).find( '.submit-pickup-location' ).show();
+                $( '.pickup-location-search-actions' ).find( '.submit-pickup-location' ).removeClass( 'hidden' ).show();
             } else {
-                $( '.pickup-location-search-actions' ).find( '.submit-pickup-location' ).hide();
+                $( '.pickup-location-search-actions' ).find( '.submit-pickup-location' ).addClass( 'hidden' ).hide();
             }
         },
 
@@ -71,7 +81,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
             return false;
         },
 
-        disablePickupLocationDelivery: function() {
+        disablePickupLocationDelivery: function( withNotice = false ) {
             var self= germanized.shipments_pickup_locations,
                 $modal = $( '.wc-gzd-modal-content[data-id="pickup-location"].active' );
 
@@ -80,6 +90,20 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
 
             if ( $modal.length > 0 ) {
                 $modal.find( '.wc-gzd-modal-close' ).trigger( 'click' );
+            }
+
+            if ( withNotice ) {
+                var $form = $( 'form.checkout' );
+
+                if ( $form.find( '.woocommerce-NoticeGroup-updateOrderReview' ).length <= 0 ) {
+                    $form.prepend( '<div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-updateOrderReview"></div>' );
+                }
+
+                $form.find( '.woocommerce-NoticeGroup-updateOrderReview' ).prepend( '<div class="woocommerce-info">' + self.params.i18n_pickup_location_delivery_unavailable + '</div>' );
+
+                var scrollElement = $( '.woocommerce-NoticeGroup-updateOrderReview' );
+
+                $.scroll_to_notices( scrollElement );
             }
         },
 
@@ -103,7 +127,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $notice = $( '.pickup_location_notice' );
 
             if ( currentCode && currentPickupLocation ) {
-                $current.attr( 'data-current-location', currentPickupLocation );
+                $current.attr( 'data-current-location', JSON.stringify( currentPickupLocation ) );
 
                 self.replaceShippingAddress( currentPickupLocation.address_replacements );
                 self.updateCustomerNumberField( currentPickupLocation );
@@ -112,7 +136,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $notice.find( '.currently-shipping-to' ).show();
                 $notice.find( '.choose-pickup-location' ).hide();
 
-                $( '#wc-gzd-shipments-pickup-location-search-form .pickup-location-remove ' ).show();
+                $( '#wc-gzd-shipments-pickup-location-search-form .pickup-location-remove' ).removeClass( 'hidden' ).show();
             } else {
                 $current.attr( 'data-current-location', '' );
                 $current.val( '' );
@@ -123,7 +147,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $( '.wc-gzd-shipments-managed-by-pickup-location' ).find( 'input[type=text]' ).val( '' );
                 $( '.wc-gzd-shipments-managed-by-pickup-location' ).find( ':input' ).prop( 'readonly', false );
 
-                $( '#wc-gzd-shipments-pickup-location-search-form .pickup-location-remove ' ).hide();
+                $( '#wc-gzd-shipments-pickup-location-search-form .pickup-location-remove' ).addClass( 'hidden' ).hide();
 
                 $( '.wc-gzd-shipments-managed-by-pickup-location' ).removeClass( 'wc-gzd-shipments-managed-by-pickup-location' );
                 $( '.wc-gzd-shipments-managed-by-pickup-location-notice' ).remove();
@@ -138,7 +162,8 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $form      = $( this ),
                 params     = $form.serialize(),
                 $pickupSelect = self.getPickupLocationSelect(),
-                current = $pickupSelect.val();
+                current = $pickupSelect.val(),
+                oldLocations = self.pickupLocations;
 
             $( '#wc-gzd-shipments-pickup-location-search-form' ).block({
                 message: null,
@@ -157,7 +182,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 success: function( data ) {
                     if ( data.success ) {
                         self.pickupLocations = data.locations;
-                        self.updatePickupLocationSelect();
+                        self.updatePickupLocationSelect( oldLocations );
 
                         $( '#wc-gzd-shipments-pickup-location-search-form' ).unblock();
                     }
@@ -169,12 +194,15 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
             return false;
         },
 
-        updatePickupLocationSelect: function() {
+        updatePickupLocationSelect: function( oldLocations = [] ) {
             var self     = germanized.shipments_pickup_locations,
                 $pickupSelect = self.getPickupLocationSelect(),
                 current = $pickupSelect.val();
 
-            $pickupSelect.attr('data-locations', self.pickupLocations );
+            try {
+                $pickupSelect.attr('data-locations', JSON.stringify( self.pickupLocations ) );
+            } catch (e) {}
+
             $pickupSelect.find( 'option:not([value=""])' ).remove();
 
             $.each( self.pickupLocations, function( code, pickupLocation ) {
@@ -182,13 +210,21 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
                 $pickupSelect.append( $( "<option></option>" ).attr("value", code ).text( label ) );
             });
 
-            var currentLocation = self.getPickupLocation( current );
+            var currentLocation = self.getPickupLocation( current, false );
 
             if ( currentLocation ) {
                 $pickupSelect.find( 'option[value="' + currentLocation.code + '"' )[0].selected = true;
             }
 
-            $pickupSelect.trigger( 'change' );
+            /**
+             * Do only trigger select change if available pickup locations really changed
+             * to prevent possible incompatibilities with other extensions.
+             */
+            try {
+                if ( JSON.stringify( self.pickupLocations ) !== JSON.stringify( oldLocations ) ) {
+                    $pickupSelect.trigger( 'change' );
+                }
+            } catch (e) {}
         },
 
         onSelectDifferentShipping: function() {
@@ -275,20 +311,22 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
             return $( '#pickup_location' );
         },
 
-        getPickupLocation: function( locationCode ) {
+        getPickupLocation: function( locationCode, allowFallback = true ) {
             var self = germanized.shipments_pickup_locations;
 
             if ( self.pickupLocations.hasOwnProperty( locationCode ) ) {
                 return self.pickupLocations[ locationCode ];
-            } else {
+            } else if ( allowFallback ) {
                 var $select = $( '#current_pickup_location' );
 
-                if ( $select.data( 'current-location' ) ) {
-                    var currentLocation = $select.data( 'current-location' );
+                if ( $select.attr( 'data-current-location' ) ) {
+                    try {
+                        var currentLocation = JSON.parse( $select.attr( 'data-current-location' ) );
 
-                    if ( currentLocation.code === locationCode ) {
-                        return currentLocation;
-                    }
+                        if ( currentLocation.code === locationCode ) {
+                            return currentLocation;
+                        }
+                    } catch (e) {}
                 }
             }
 
@@ -297,23 +335,37 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
 
         afterRefreshCheckout: function( e, ajaxData ) {
             var self = germanized.shipments_pickup_locations,
-                supportsPickupLocationDelivery = false;
+                supportsPickupLocationDelivery = false,
+                oldLocations = self.pickupLocations,
+                oldProvider = self.currentProvider;
 
             ajaxData = ( typeof ajaxData === 'undefined' ) ? {
                 'fragments': {
+                    '.gzd-shipments-current-provider': '',
                     '.gzd-shipments-pickup-location-supported': false,
                     '.gzd-shipments-pickup-locations': JSON.stringify( self.pickupLocations ),
                 }
             } : ajaxData;
 
             if ( ajaxData.hasOwnProperty( 'fragments' ) ) {
+                if ( ajaxData.fragments.hasOwnProperty( '.gzd-shipments-current-provider' ) ) {
+                    self.currentProvider = ajaxData.fragments['.gzd-shipments-current-provider'];
+                }
+
+                if ( ! self.currentProvider || oldProvider !== self.currentProvider ) {
+                    if ( self.hasPickupLocationDelivery() ) {
+                        self.disablePickupLocationDelivery( true );
+                    }
+                }
+
                 if ( ajaxData.fragments.hasOwnProperty( '.gzd-shipments-pickup-location-supported' ) ) {
                     supportsPickupLocationDelivery = ajaxData.fragments['.gzd-shipments-pickup-location-supported'];
                 }
-                if ( ajaxData.fragments.hasOwnProperty( '.gzd-shipments-pickup-locations' ) && Object.keys( self.pickupLocations ).length <= 0 ) {
+
+                if ( ajaxData.fragments.hasOwnProperty( '.gzd-shipments-pickup-locations' ) ) {
                     self.pickupLocations = JSON.parse( ajaxData.fragments['.gzd-shipments-pickup-locations'] );
 
-                    self.updatePickupLocationSelect();
+                    self.updatePickupLocationSelect( oldLocations );
                 }
             }
 
@@ -330,19 +382,7 @@ window.germanized.shipments_pickup_locations = window.germanized.shipments_picku
             self.available = false;
 
             if ( self.hasPickupLocationDelivery() ) {
-                self.disablePickupLocationDelivery();
-
-                var $form = $( 'form.checkout' );
-
-                if ( $form.find( '.woocommerce-NoticeGroup-updateOrderReview' ).length <= 0 ) {
-                    $form.prepend( '<div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-updateOrderReview"></div>' );
-                }
-
-                $form.find( '.woocommerce-NoticeGroup-updateOrderReview' ).prepend( '<div class="woocommerce-info">' + self.params.i18n_pickup_location_delivery_unavailable + '</div>' );
-
-                var scrollElement = $( '.woocommerce-NoticeGroup-updateOrderReview' );
-
-                $.scroll_to_notices( scrollElement );
+                self.disablePickupLocationDelivery( true );
             }
 
             $( '.pickup_location_notice' ).addClass( 'hidden' ).hide();

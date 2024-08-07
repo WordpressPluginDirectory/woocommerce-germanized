@@ -126,6 +126,10 @@ class Simple extends WC_Data implements ShippingProvider {
 		return '';
 	}
 
+	public function get_section_help_link( $section ) {
+		return '';
+	}
+
 	public function get_signup_link() {
 		return '';
 	}
@@ -569,9 +573,16 @@ class Simple extends WC_Data implements ShippingProvider {
 	}
 
 	protected function setting_supports_default_update( $setting ) {
-		$type = isset( $setting['type'] ) ? $setting['type'] : 'title';
+		$setting = wp_parse_args(
+			$setting,
+			array(
+				'type'         => 'title',
+				'id'           => '',
+				'skip_install' => false,
+			)
+		);
 
-		if ( in_array( $type, array( 'title', 'sectionend', 'html' ), true ) || ! isset( $setting['id'] ) || empty( $setting['id'] ) ) {
+		if ( in_array( $setting['type'], array( 'title', 'sectionend', 'html' ), true ) || empty( $setting['id'] ) || $setting['skip_install'] ) {
 			return false;
 		}
 

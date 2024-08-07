@@ -2,10 +2,10 @@
 Contributors: vendidero, vdwoocommercesupport
 Tags: woocommerce, germany, germany, deutsch, woo
 Requires at least: 5.4
-Tested up to: 6.5
+Tested up to: 6.6
 WC requires at least: 3.9
-WC tested up to: 8.9
-Stable tag: 3.16.8
+WC tested up to: 9.0
+Stable tag: 3.17.2
 Requires PHP: 5.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -60,7 +60,7 @@ Of course Trusted Shops customers may embed their quality seals or further Trust
 
 = Pro: WooCommerce PDF invoices & packing slips =
 As a Pro User of Germanized you may automatically or manually create PDF Invoices and Packing Slips for your orders. Adjust your document layout by using the built-in visual document editor.
-Either export your documents (CSV, zip) for your tax consultant manually or use our integrations to transmit your documents to your lexoffice or sevDesk account.
+Either export your documents (CSV, zip) for your tax consultant manually or use our integrations to transmit your documents to your lexoffice or sevdesk account.
 Learn more about [PDF Invoices for WooCommerce](https://vendidero.de/woocommerce-germanized/features#accounting "WooCommerce PDF Invoices")
 
 Furthermore you may attach legally relevant pages (e.g. Terms & Conditions) as PDF documents to specific WooCommerce emails instead of using plain text.
@@ -205,6 +205,40 @@ Bug reports may be filed via our [GitHub repository](https://github.com/vendider
 6. Edit pdf documents (Pro)
 
 == Changelog ==
+= 3.17.2 =
+* Improvement: Add link to last shipment's tracking url in order shipping status column
+* Improvement: Added new abstraction layer for pickup location provider settings
+* Improvement: Support for specific item based free shipping rules, e.g. based on exact shipping class match or restricted packaging
+* Fix: Variation shipping dimensions
+* Fix: Prevent certain special chars in DHL label references to prevent cryptic inlay label error messages
+
+= 3.17.1 =
+* Improvement: Support unit product ranges for variable products, e.g. 100 ml - 200 ml
+* Improvement: Use all available (even non-fitting) packaging options in view-mode only
+* Improvement: Prevent (loading, creating) orphan shipment items
+* Improvement: Skip custom shipping address option creation during installation
+* Improvement: Added option to decide whether to use a custom return address or not
+* Fix: FSE theme hook injection fatal error
+* Fix: Revert to using transients (like Woo Core does) instead of options for setup/activation redirection
+* Fix: Support importing checkout visibility attribute for variable products
+* Fix: Re-add missing country-specific delivery time label
+* Fix: Cleanup email gettext filter within email footer
+* Fix: Check for product existence before applying bundle shipments compatibility
+
+= 3.17.0 =
+* New: WP 6.6 compatibility
+* Improvement: Woo 9.0 compatibility
+* Improvement: Pickup location modal styles, hidden classes
+* Improvement: Shipments bundle compatibility, parent-child hierarchy
+* Improvement: Preview shipment button in shipment table
+* Improvement: Allow managing label references via options
+* Improvement: Allow choosing a custom value of goods for DHL insurance
+* Improvement: Added custom delivery time classnames to delivery time wrapper
+* Fix: Check attribute type while exporting product data
+
+= 3.16.9 =
+* Fix: Incompatibility with Amazon Pay
+
 = 3.16.8 =
 * Improvement: Support gateway fee (Nachnahme) in block-based checkout
 * Improvement: DHL SOAP WSDL files update, added optional MRN to SOAP API too

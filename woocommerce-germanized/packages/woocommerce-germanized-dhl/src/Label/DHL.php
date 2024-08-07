@@ -123,6 +123,20 @@ class DHL extends Label {
 		return $this->get_meta( '_cod_includes_additional_total', true, $context );
 	}
 
+	public function get_insurance_amount( $context = 'view' ) {
+		$insurance_amount = $this->get_service_prop( 'AdditionalInsurance', 'insurance_amount', null, $context );
+
+		if ( null === $insurance_amount ) {
+			$insurance_amount = 0.0;
+
+			if ( $this->has_service( 'AdditionalInsurance' ) ) {
+				$insurance_amount = $this->get_shipment() ? $this->get_shipment()->get_total() : 0.0;
+			}
+		}
+
+		return (float) wc_format_decimal( $insurance_amount );
+	}
+
 	public function cod_includes_additional_total( $context = 'view' ) {
 		return $this->get_cod_includes_additional_total() ? true : false;
 	}
@@ -348,6 +362,10 @@ class DHL extends Label {
 		}
 	}
 
+	public function get_plain_path( $context = 'view' ) {
+		return $this->get_path( $context, 'default' );
+	}
+
 	public function set_path( $path, $file_type = '' ) {
 		if ( 'default' === $file_type ) {
 			$this->set_default_path( $path );
@@ -356,6 +374,10 @@ class DHL extends Label {
 		} else {
 			parent::set_path( $path, $file_type );
 		}
+	}
+
+	public function set_plain_path( $path ) {
+		$this->set_path( $path, 'default' );
 	}
 
 	public function get_default_file() {

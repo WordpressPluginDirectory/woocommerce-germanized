@@ -7,6 +7,7 @@ use Vendidero\Germanized\Shipments\Admin\Settings;
 use Vendidero\Germanized\Shipments\Interfaces\ShippingProvider;
 use Vendidero\Germanized\Shipments\Package;
 use Vendidero\Germanized\Shipments\Packing\Helper;
+use Vendidero\Germanized\Shipments\Packing\PackagingList;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -258,6 +259,10 @@ class ShippingMethod extends \WC_Shipping_Method {
 					'label'       => _x( 'none of', 'shipments', 'woocommerce-germanized' ),
 					'is_negation' => true,
 				),
+				'exactly' => array(
+					'label'       => _x( 'Exactly', 'shipments', 'woocommerce-germanized' ),
+					'is_negation' => false,
+				),
 			)
 		);
 	}
@@ -359,7 +364,7 @@ class ShippingMethod extends \WC_Shipping_Method {
 							},
 						),
 					),
-					'operators' => array( 'any_of', 'none_of' ),
+					'operators' => array( 'any_of', 'none_of', 'exactly' ),
 					'is_global' => true,
 				),
 				'package_shipping_classes' => array(
@@ -375,7 +380,7 @@ class ShippingMethod extends \WC_Shipping_Method {
 							},
 						),
 					),
-					'operators' => array( 'any_of', 'none_of' ),
+					'operators' => array( 'any_of', 'none_of', 'exactly' ),
 				),
 			)
 		);
@@ -424,12 +429,13 @@ class ShippingMethod extends \WC_Shipping_Method {
 			$this->get_option( 'cache', array() ),
 			array(
 				'packaging_ids' => array(),
+				'costs'         => null,
 				'global_rules'  => null,
 			)
 		);
 
-		if ( is_null( $cache['global_rules'] ) ) {
-			$cache['global_rules'] = $this->get_global_rules();
+		if ( is_null( $cache['global_rules'] ) || is_null( $cache['costs'] ) ) {
+			$cache = $this->get_updated_cache();
 			$this->update_option( 'cache', $cache );
 		}
 
@@ -456,6 +462,7 @@ class ShippingMethod extends \WC_Shipping_Method {
 		$cache         = $this->get_cache();
 		$packaging_ids = $cache['packaging_ids'];
 		$global_rules  = $cache['global_rules'];
+		$costs         = $cache['costs'];
 
 		if ( in_array( 'all', $packaging_ids, true ) || empty( $packaging_ids ) ) {
 			$packaging_boxes = Helper::get_packaging_boxes();
@@ -532,8 +539,15 @@ class ShippingMethod extends \WC_Shipping_Method {
 		}
 
 		$packaging_ids = array_unique( array_values( $packaging_ids ) );
+		$boxes         = Helper::get_packaging_boxes( apply_filters( 'woocommerce_gzd_shipping_method_available_packaging_ids', $packaging_ids, $this ) );
 
-		return Helper::get_packaging_boxes( apply_filters( 'woocommerce_gzd_shipping_method_available_packaging_ids', $packaging_ids, $this ) );
+		foreach ( $costs as $packaging_id => $cost ) {
+			if ( array_key_exists( $packaging_id, $boxes ) ) {
+				$boxes[ $packaging_id ]->set_costs( $cost['avg'] );
+			}
+		}
+
+		return $boxes;
 	}
 
 	public function calculate_shipping( $package = array() ) {
@@ -542,9 +556,10 @@ class ShippingMethod extends \WC_Shipping_Method {
 		$is_debug_mode = Package::is_shipping_debug_mode();
 
 		if ( isset( $package['items_to_pack'], $package['package_data'] ) ) {
-			$cart_data                       = (array) $package['package_data'];
-			$available_boxes                 = $this->get_available_packaging_boxes( $cart_data );
-			$boxes                           = \DVDoug\BoxPacker\BoxList::fromArray( $available_boxes );
+			$cart_data       = (array) $package['package_data'];
+			$available_boxes = $this->get_available_packaging_boxes( $cart_data );
+			$boxes           = PackagingList::fromArray( $available_boxes );
+
 			$cost_calculation_mode           = $this->get_multiple_shipments_cost_calculation_mode();
 			$multiple_rules_calculation_mode = $this->get_multiple_rules_cost_calculation_mode();
 
@@ -558,15 +573,16 @@ class ShippingMethod extends \WC_Shipping_Method {
 
 			if ( 0 === count( $unpacked_items ) ) {
 				foreach ( $packed_boxes as $box ) {
-					$packaging        = $box->getBox();
-					$items            = $box->getItems();
-					$total_weight     = wc_get_weight( $items->getWeight(), strtolower( get_option( 'woocommerce_weight_unit' ) ), 'g' );
-					$volume           = wc_get_dimension( $items->getVolume(), strtolower( get_option( 'woocommerce_dimension_unit' ) ), 'mm' );
-					$item_count       = $items->count();
-					$total            = 0;
-					$subtotal         = 0;
-					$products         = array();
-					$shipping_classes = array();
+					$packaging                    = $box->getBox();
+					$items                        = $box->getItems();
+					$total_weight                 = wc_get_weight( $items->getWeight(), strtolower( get_option( 'woocommerce_weight_unit' ) ), 'g' );
+					$volume                       = wc_get_dimension( $items->getVolume(), strtolower( get_option( 'woocommerce_dimension_unit' ) ), 'mm' );
+					$item_count                   = $items->count();
+					$total                        = 0;
+					$subtotal                     = 0;
+					$products                     = array();
+					$shipping_classes             = array();
+					$has_missing_shipping_classes = false;
 
 					foreach ( $items as $item ) {
 						$cart_item = $item->getItem();
@@ -579,6 +595,8 @@ class ShippingMethod extends \WC_Shipping_Method {
 
 							if ( ! empty( $product->get_shipping_class_id() ) ) {
 								$shipping_classes[] = $product->get_shipping_class_id();
+							} else {
+								$has_missing_shipping_classes = true;
 							}
 						}
 					}
@@ -597,6 +615,7 @@ class ShippingMethod extends \WC_Shipping_Method {
 							'packaging_id'             => $packaging->get_id(),
 							'package_products'         => $products,
 							'package_shipping_classes' => $shipping_classes,
+							'package_has_missing_shipping_classes' => $has_missing_shipping_classes,
 						)
 					);
 
@@ -784,7 +803,23 @@ class ShippingMethod extends \WC_Shipping_Method {
 
 			if ( $is_debug_mode && ! Package::is_constant_defined( 'WOOCOMMERCE_CHECKOUT' ) && ! Package::is_constant_defined( 'WC_DOING_AJAX' ) && ! empty( $debug_notices ) ) {
 				$the_notice         = '';
+				$cart_wide_notice   = '';
 				$available_box_list = array();
+				$cart_wide_notices  = array();
+
+				$cart_wide_notices[] = _x( '### Items available to pack:', 'shipments', 'woocommerce-germanized' );
+
+				foreach ( $package['items_to_pack'] as $item_to_pack ) {
+					$cart_wide_notices[] = $item_to_pack->getDescription() . ' (' . wc_gzd_format_shipment_dimensions( $item_to_pack->get_dimensions(), 'mm' ) . ', ' . wc_gzd_format_shipment_weight( $item_to_pack->getWeight(), 'g' ) . ')';
+				}
+
+				foreach ( $cart_wide_notices as $notice ) {
+					$cart_wide_notice .= $notice . '<br/>';
+				}
+
+				if ( ! wc_has_notice( $cart_wide_notice ) ) {
+					wc_add_notice( $cart_wide_notice );
+				}
 
 				foreach ( $available_boxes as $box ) {
 					$available_box_list[] = $box->get_packaging()->get_title();
@@ -855,18 +890,19 @@ class ShippingMethod extends \WC_Shipping_Method {
 		$package_data = wp_parse_args(
 			$package_data,
 			array(
-				'package_weight'           => 0.0,
-				'package_volume'           => 0.0,
-				'package_total'            => 0.0,
-				'package_subtotal'         => 0.0,
-				'package_products'         => array(),
-				'package_shipping_classes' => array(),
-				'weight'                   => 0.0,
-				'volume'                   => 0.0,
-				'total'                    => 0.0,
-				'subtotal'                 => 0.0,
-				'products'                 => array(),
-				'shipping_classes'         => array(),
+				'package_weight'                       => 0.0,
+				'package_volume'                       => 0.0,
+				'package_total'                        => 0.0,
+				'package_subtotal'                     => 0.0,
+				'package_products'                     => array(),
+				'package_shipping_classes'             => array(),
+				'package_has_missing_shipping_classes' => false,
+				'weight'                               => 0.0,
+				'volume'                               => 0.0,
+				'total'                                => 0.0,
+				'subtotal'                             => 0.0,
+				'products'                             => array(),
+				'shipping_classes'                     => array(),
 			)
 		);
 
@@ -920,11 +956,16 @@ class ShippingMethod extends \WC_Shipping_Method {
 				} elseif ( 'shipping_classes' === $condition_type_name || 'package_shipping_classes' === $condition_type_name ) {
 					$classes = isset( $condition['classes'] ) && ! empty( $condition['classes'] ) ? array_map( 'absint', (array) $condition['classes'] ) : array();
 
-					if ( array_intersect( $package_data[ $condition_type_name ], $classes ) ) {
-						if ( 'any_of' === $operator_name ) {
-							$condition_applies = true;
-						} elseif ( 'none_of' === $operator_name ) {
-							$condition_applies = false;
+					if ( 'exactly' === $operator_name ) {
+						$has_missing_shipping_classes = 'package_shipping_classes' === $condition_type_name ? $package_data['package_has_missing_shipping_classes'] : $package_data['has_missing_shipping_classes'];
+						$condition_applies            = ! $has_missing_shipping_classes && $package_data[ $condition_type_name ] === $classes;
+					} else {
+						if ( array_intersect( $package_data[ $condition_type_name ], $classes ) ) {
+							if ( 'any_of' === $operator_name ) {
+								$condition_applies = true;
+							} elseif ( 'none_of' === $operator_name ) {
+								$condition_applies = false;
+							}
 						}
 					}
 				}
@@ -977,12 +1018,26 @@ class ShippingMethod extends \WC_Shipping_Method {
 		return '';
 	}
 
-	protected function get_global_rules() {
+	protected function validate_cache_field() {
+		return $this->get_updated_cache();
+	}
+
+	protected function get_updated_cache() {
 		$rules        = $this->get_option( 'shipping_rules', array() );
 		$global_rules = array();
+		$costs        = array();
 
 		foreach ( $rules as $packaging_id => $packaging_rules ) {
+			$costs[ $packaging_id ] = array(
+				'min' => 0.0,
+				'max' => 0.0,
+				'avg' => 0.0,
+			);
+
 			foreach ( $packaging_rules as $packaging_rule ) {
+				/**
+				 * Global rules
+				 */
 				$is_global = true;
 
 				foreach ( $packaging_rule['conditions'] as $condition ) {
@@ -1001,18 +1056,32 @@ class ShippingMethod extends \WC_Shipping_Method {
 
 					$global_rules[ $packaging_id ][] = $packaging_rule['rule_id'];
 				}
+
+				/**
+				 * Min, max costs
+				 */
+				$cost = (float) wc_format_decimal( $packaging_rule['costs'] );
+
+				if ( $cost >= $costs[ $packaging_id ]['max'] ) {
+					$costs[ $packaging_id ]['max'] = $cost;
+				}
+
+				if ( $cost <= $costs[ $packaging_id ]['min'] || 0.0 === $costs[ $packaging_id ]['min'] ) {
+					$costs[ $packaging_id ]['min'] = $cost;
+				}
+
+				$costs[ $packaging_id ]['avg'] += $cost;
+			}
+
+			if ( count( $packaging_rules ) > 0 ) {
+				$costs[ $packaging_id ]['avg'] = $costs[ $packaging_id ]['avg'] / count( $packaging_rules );
 			}
 		}
 
-		return $global_rules;
-	}
-
-	protected function validate_cache_field() {
-		$rules = $this->get_option( 'shipping_rules', array() );
-
 		$cache = array(
 			'packaging_ids' => array_keys( $rules ),
-			'global_rules'  => $this->get_global_rules(),
+			'global_rules'  => $global_rules,
+			'costs'         => $costs,
 		);
 
 		return $cache;
@@ -1033,7 +1102,7 @@ class ShippingMethod extends \WC_Shipping_Method {
 		foreach ( $ids as $id ) {
 			$rule_id   = $index++;
 			$packaging = 'all' === $option_value['packaging'][ $id ] ? 'all' : absint( $option_value['packaging'][ $id ] );
-			$costs     = wc_format_decimal( isset( $option_value['costs'][ $id ] ) ? wc_clean( $option_value['costs'][ $id ] ) : 0, false, true );
+			$costs     = (float) wc_format_decimal( isset( $option_value['costs'][ $id ] ) ? wc_clean( $option_value['costs'][ $id ] ) : 0, false, true );
 
 			$rule = array(
 				'rule_id'    => $rule_id,
@@ -1095,14 +1164,14 @@ class ShippingMethod extends \WC_Shipping_Method {
 									$decimals = 0;
 								}
 
-								$value = wc_format_decimal( $value, $decimals, true );
+								$value = (float) wc_format_decimal( $value, $decimals, true );
 							} else {
-								$value = wc_format_decimal( $value, false, true );
+								$value = (float) wc_format_decimal( $value, false, true );
 							}
 						} elseif ( 'price' === $field['data_type'] ) {
-							$value = wc_format_decimal( $value, wc_get_price_decimals(), true );
+							$value = (float) wc_format_decimal( $value, wc_get_price_decimals(), true );
 						} elseif ( 'decimal' === $field['data_type'] ) {
-							$value = wc_format_decimal( $value );
+							$value = (float) wc_format_decimal( $value );
 						} elseif ( 'array' === $field['data_type'] ) {
 							$value = (array) $value;
 						}

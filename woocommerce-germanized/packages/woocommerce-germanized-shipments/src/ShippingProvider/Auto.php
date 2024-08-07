@@ -10,6 +10,7 @@ use Vendidero\Germanized\Shipments\Interfaces\ShippingProviderAuto;
 use Vendidero\Germanized\Shipments\Labels\ConfigurationSet;
 use Vendidero\Germanized\Shipments\Labels\ConfigurationSetTrait;
 use Vendidero\Germanized\Shipments\Labels\Factory;
+use Vendidero\Germanized\Shipments\Labels\Label;
 use Vendidero\Germanized\Shipments\Package;
 use Vendidero\Germanized\Shipments\Packaging;
 use Vendidero\Germanized\Shipments\Shipment;
@@ -29,6 +30,9 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		'label_return_auto_enable'           => false,
 		'label_return_auto_shipment_status'  => 'gzd-processing',
 		'label_auto_shipment_status_shipped' => false,
+		'label_references'                   => array(),
+		'pickup_locations_enable'            => true,
+		'pickup_locations_max_results'       => 20,
 		'configuration_sets'                 => array(),
 	);
 
@@ -97,6 +101,148 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		return $this->get_prop( 'label_auto_shipment_status', $context );
 	}
 
+	public function get_pickup_locations_enable( $context = 'view' ) {
+		return $this->get_prop( 'pickup_locations_enable', $context );
+	}
+
+	public function get_pickup_locations_max_results( $context = 'view' ) {
+		return $this->get_prop( 'pickup_locations_max_results', $context );
+	}
+
+	public function enable_pickup_location_delivery() {
+		return $this->get_pickup_locations_enable();
+	}
+
+	public function get_label_references( $context = 'view' ) {
+		$references = array_filter( (array) $this->get_prop( 'label_references', $context ) );
+
+		if ( 'view' === $context ) {
+			foreach ( $this->get_supported_shipment_types() as $shipment_type ) {
+				if ( ! isset( $references[ $shipment_type ] ) || ! is_array( $references[ $shipment_type ] ) ) {
+					$references[ $shipment_type ] = array();
+				}
+
+				foreach ( $this->get_supported_label_reference_types( $shipment_type ) as $ref_type => $ref_type_data ) {
+					$ref_type_data = wp_parse_args(
+						$ref_type_data,
+						array(
+							'default' => '',
+						)
+					);
+
+					if ( ! isset( $references[ $shipment_type ][ $ref_type ] ) ) {
+						$references[ $shipment_type ][ $ref_type ] = $ref_type_data['default'];
+					}
+				}
+			}
+		}
+
+		return $references;
+	}
+
+	public function get_supported_label_reference_types( $shipment_type = 'simple' ) {
+		return array();
+	}
+
+	/**
+	 * @param $ref_type
+	 * @param $shipment_type
+	 *
+	 * @return array|false
+	 */
+	public function get_supported_label_reference_type( $ref_type, $shipment_type = 'simple' ) {
+		$ref_types = $this->get_supported_label_reference_types( $shipment_type );
+		$type      = false;
+
+		if ( array_key_exists( $ref_type, $ref_types ) ) {
+			$type = wp_parse_args(
+				$ref_types[ $ref_type ],
+				array(
+					'max_length' => -1,
+					'label'      => '',
+					'default'    => '',
+				)
+			);
+		}
+
+		return $type;
+	}
+
+	/**
+	 * @param string $shipment_type
+	 * @param Label|null $label
+	 *
+	 * @return array
+	 */
+	public function get_label_reference_placeholders( $shipment_type = 'simple', $label = null ) {
+		$placeholders = array(
+			'{shipment_number}' => _x( 'Shipment number, e.g. 5', 'shipments', 'woocommerce-germanized' ),
+			'{order_number}'    => _x( 'Order number, e.g. 1234', 'shipments', 'woocommerce-germanized' ),
+			'{item_count}'      => _x( 'Number of items included in the shipment, e.g. 5', 'shipments', 'woocommerce-germanized' ),
+		);
+
+		if ( $label ) {
+			if ( $shipment = $label->get_shipment() ) {
+				$placeholders['{shipment_number}'] = $shipment->get_shipment_number();
+				$placeholders['{shipment_id}']     = $shipment->get_id();
+				$placeholders['{order_number}']    = $shipment->get_order_number();
+				$placeholders['{item_count}']      = $shipment->get_item_count();
+			}
+		}
+
+		return apply_filters( "{$this->get_hook_prefix()}label_reference_placeholders", $placeholders, $shipment_type, $label );
+	}
+
+	/**
+	 * @param string $shipment_type
+	 * @param string $reference_type
+	 *
+	 * @return string
+	 */
+	public function get_label_reference( $shipment_type = 'simple', $reference_type = '', $context = 'view' ) {
+		$references = $this->get_label_references( $context );
+		$reference  = '';
+
+		if ( array_key_exists( $shipment_type, $references ) ) {
+			$references = $references[ $shipment_type ];
+
+			if ( array_key_exists( $reference_type, $references ) ) {
+				$reference = $references[ $reference_type ];
+			}
+		}
+
+		return $reference;
+	}
+
+	/**
+	 * @param Label $label
+	 * @param string $shipment_type
+	 * @param string $reference_type
+	 *
+	 * @return string
+	 */
+	public function get_formatted_label_reference( $label, $shipment_type = 'simple', $reference_type = '' ) {
+		$reference  = $this->get_label_reference( $shipment_type, $reference_type );
+		$max_length = -1;
+
+		if ( $ref_type = $this->get_supported_label_reference_type( $reference_type, $shipment_type ) ) {
+			$max_length = $ref_type['max_length'];
+		}
+
+		if ( ! empty( $reference ) ) {
+			$placeholders = $this->get_label_reference_placeholders( $shipment_type, $label );
+			$reference    = str_replace( array_keys( $placeholders ), array_values( $placeholders ), $reference );
+		}
+
+		$formatted_ref = apply_filters( "{$this->get_hook_prefix()}formatted_label_reference", $reference, $label, $shipment_type, $reference_type );
+
+		if ( -1 !== $max_length ) {
+			$formatted_ref = wc_gzd_shipments_substring( $formatted_ref, 0, $max_length );
+		}
+
+		return $formatted_ref;
+	}
+
 	public function get_label_return_auto_enable( $context = 'view' ) {
 		return $this->get_prop( 'label_return_auto_enable', $context );
 	}
@@ -125,6 +271,10 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		$this->set_prop( 'label_auto_shipment_status', $status );
 	}
 
+	public function set_label_references( $references ) {
+		$this->set_prop( 'label_references', $references );
+	}
+
 	public function set_label_return_auto_enable( $enable ) {
 		$this->set_prop( 'label_return_auto_enable', wc_string_to_bool( $enable ) );
 	}
@@ -135,6 +285,14 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 
 	public function set_label_return_auto_shipment_status( $status ) {
 		$this->set_prop( 'label_return_auto_shipment_status', $status );
+	}
+
+	public function set_pickup_locations_enable( $enable ) {
+		$this->set_prop( 'pickup_locations_enable', wc_string_to_bool( $enable ) );
+	}
+
+	public function set_pickup_locations_max_results( $max_results ) {
+		$this->set_prop( 'pickup_locations_max_results', absint( $max_results ) );
 	}
 
 	public function get_label_classname( $type ) {
@@ -167,6 +325,13 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 	 */
 	public function supports_labels( $label_type, $shipment = false ) {
 		return true;
+	}
+
+	/**
+	 * @return null|\WP_Error|true
+	 */
+	public function test_connection() {
+		return null;
 	}
 
 	/**
@@ -204,6 +369,16 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		}
 
 		return apply_filters( "{$this->get_hook_prefix()}label_fields_html", $html, $shipment, $this );
+	}
+
+	public function get_section_help_link( $section ) {
+		$help_link = parent::get_section_help_link( $section );
+
+		if ( 'pickup_locations' === $section ) {
+			$help_link = 'https://vendidero.de/dokument/lieferung-an-eine-abholstation';
+		}
+
+		return $help_link;
 	}
 
 	protected function get_printing_settings() {
@@ -255,6 +430,49 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 				array(
 					'type' => 'sectionend',
 					'id'   => 'shipping_provider_label_format_options',
+				),
+			)
+		);
+
+		return $settings;
+	}
+
+	protected function get_pickup_locations_settings() {
+		$settings = array(
+			array(
+				'title' => _x( 'Pickup Locations', 'shipments', 'woocommerce-germanized' ),
+				'type'  => 'title',
+				'id'    => 'shipping_provider_pickup_locations_options',
+			),
+			array(
+				'title'   => _x( 'Enable', 'shipments', 'woocommerce-germanized' ),
+				'desc'    => _x( 'Allow customers to choose a pickup location within checkout.', 'shipments', 'woocommerce-germanized' ),
+				'id'      => 'pickup_locations_enable',
+				'type'    => 'gzd_toggle',
+				'default' => 'yes',
+				'value'   => wc_bool_to_string( $this->get_setting( 'pickup_locations_enable', 'yes' ) ),
+			),
+			array(
+				'title'             => _x( 'Limit results', 'shipments', 'woocommerce-germanized' ),
+				'type'              => 'number',
+				'id'                => 'pickup_locations_max_results',
+				'value'             => $this->get_setting( 'pickup_locations_max_results', 20 ),
+				'desc_tip'          => _x( 'Limit the number of pickup locations presented to the customer.', 'shipments', 'woocommerce-germanized' ),
+				'default'           => 20,
+				'css'               => 'max-width: 60px;',
+				'custom_attributes' => array(
+					'max'                                  => 50,
+					'data-show_if_pickup_locations_enable' => '',
+				),
+			),
+		);
+
+		$settings = array_merge(
+			$settings,
+			array(
+				array(
+					'type' => 'sectionend',
+					'id'   => 'shipping_provider_pickup_locations_options',
 				),
 			)
 		);
@@ -346,6 +564,10 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 
 	public function get_settings_help_pointers( $section = '' ) {
 		return array();
+	}
+
+	public function supports_pickup_locations() {
+		return false;
 	}
 
 	public function supports_pickup_location_delivery( $address, $query_args = array() ) {
@@ -454,7 +676,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 			array(
 				'max_dimensions'  => array(),
 				'max_weight'      => 0.0,
-				'limit'           => 10,
+				'limit'           => $this->get_pickup_locations_max_results(),
 				'payment_gateway' => '',
 			)
 		);
@@ -496,6 +718,13 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		 */
 		if ( ! empty( $pickup_locations ) ) {
 			foreach ( $pickup_locations as $k => $pickup_location ) {
+				$cache_key                     = $this->get_pickup_location_cache_key( $pickup_location->get_id(), $pickup_location->get_address() );
+				$single_cached_pickup_location = get_transient( $cache_key );
+
+				if ( false === $single_cached_pickup_location ) {
+					set_transient( $cache_key, $single_cached_pickup_location, DAY_IN_SECONDS );
+				}
+
 				if ( ! $pickup_location->supports_cart( $query_args ) ) {
 					unset( $pickup_locations[ $k ] );
 				}
@@ -508,7 +737,65 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 	}
 
 	protected function get_label_settings_by_shipment_type( $shipment_type = 'simple' ) {
-		$settings = array();
+		$settings               = array();
+		$reference_settings     = array();
+		$label_placeholders     = $this->get_label_reference_placeholders( $shipment_type );
+		$formatted_placeholders = '<ul class="wc-gzd-shipments-available-placeholders">';
+
+		foreach ( $label_placeholders as $placeholder => $title ) {
+			$formatted_placeholders .= sprintf( '<li><code>%s</code>: %s</li>', esc_attr( $placeholder ), esc_html( $title ) );
+		}
+
+		$formatted_placeholders .= '</ul>';
+
+		foreach ( $this->get_supported_label_reference_types( $shipment_type ) as $reference_type => $reference_type_data ) {
+			$reference_type_data  = wp_parse_args(
+				(array) $reference_type_data,
+				array(
+					'label'      => '',
+					'default'    => '',
+					'max_length' => -1,
+				)
+			);
+			$shipment_label_title = wc_gzd_get_shipment_label_title( $shipment_type );
+
+			$reference_settings[] = array(
+				'title'        => $reference_type_data['label'],
+				'desc'         => '<div class="wc-gzd-additional-desc">' . sprintf( _x( 'Adjust %1$s printed on the %2$s label. Use the following placeholders to format the reference: %3$s', 'shipments', 'woocommerce-germanized' ), $reference_type_data['label'], $shipment_label_title, $formatted_placeholders ) . ( -1 !== $reference_type_data['max_length'] ? sprintf( _x( 'Please keep in mind that the formatted reference cannot exceed %1$s characters.', 'shipments', 'woocommerce-germanized' ), $reference_type_data['max_length'] ) : '' ) . '</div>',
+				'id'           => "shipping_provider_label_reference_{$shipment_type}_{$reference_type}",
+				'placeholder'  => $reference_type_data['default'],
+				'value'        => $this->get_label_reference( $shipment_type, $reference_type, 'edit' ),
+				'default'      => $reference_type_data['default'],
+				'skip_install' => true,
+				'type'         => 'textarea',
+				'css'          => 'width: 100%; min-height: 60px; margin-top: 1em;',
+			);
+		}
+
+		if ( ! empty( $reference_settings ) ) {
+			$settings = array_merge(
+				$settings,
+				array(
+					array(
+						'title' => _x( 'Label references', 'shipments', 'woocommerce-germanized' ),
+						'type'  => 'title',
+						'id'    => 'shipping_provider_label_references',
+					),
+				)
+			);
+
+			$settings = array_merge( $settings, $reference_settings );
+
+			$settings = array_merge(
+				$settings,
+				array(
+					array(
+						'type' => 'sectionend',
+						'id'   => 'shipping_provider_label_references',
+					),
+				)
+			);
+		}
 
 		foreach ( $this->get_available_label_zones( $shipment_type ) as $zone ) {
 			$setting_id          = 'shipping_provider_' . $shipment_type . '_label_' . $zone;
@@ -706,6 +993,15 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 				'automation' => _x( 'Automation', 'shipments', 'woocommerce-germanized' ),
 			)
 		);
+
+		if ( $this->supports_pickup_locations() ) {
+			$sections = array_merge(
+				$sections,
+				array(
+					'pickup_locations' => _x( 'Pickup Locations', 'shipments', 'woocommerce-germanized' ),
+				)
+			);
+		}
 
 		$sections = array_replace_recursive( $sections, parent::get_setting_sections() );
 
@@ -1092,6 +1388,8 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 						}
 					}
 
+					do_action( "{$this->get_general_hook_prefix()}error_while_creating_label", $label, $result, $this );
+
 					return $result;
 				}
 			}
@@ -1390,6 +1688,25 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 				$configuration_set->update_setting( $setting_name_clean, $value );
 				$this->update_configuration_set( $configuration_set );
 			}
+		} elseif ( 'label_reference_' === substr( $setting_name_clean, 0, 16 ) ) {
+			$label_reference   = explode( '_', substr( $setting_name_clean, 16 ) );
+			$ref_shipment_type = $label_reference[0];
+			$ref_type          = implode( '_', array_slice( $label_reference, 1 ) );
+			$references        = $this->get_label_references( 'edit' );
+
+			if ( ! isset( $references[ $ref_shipment_type ] ) ) {
+				$references[ $ref_shipment_type ] = array();
+			}
+
+			if ( empty( $value ) ) {
+				if ( isset( $references[ $ref_shipment_type ][ $ref_type ] ) ) {
+					unset( $references[ $ref_shipment_type ][ $ref_type ] );
+				}
+			} else {
+				$references[ $ref_shipment_type ][ $ref_type ] = $value;
+			}
+
+			$this->set_label_references( $references );
 		} else {
 			parent::update_setting( $setting, $value );
 		}

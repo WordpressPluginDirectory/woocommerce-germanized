@@ -291,9 +291,12 @@ class ShipmentQuery extends WC_Object_Query {
 
 		// order id
 		if ( isset( $this->args['order_id'] ) ) {
-			$order_ids          = array_filter( array_map( 'absint', $this->args['order_id'] ) );
-			$placeholders       = implode( ',', array_fill( 0, count( $order_ids ), '%d' ) );
-			$this->query_where .= $wpdb->prepare( " AND shipment_order_id IN ({$placeholders})", ...$order_ids ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$order_ids = array_map( 'absint', $this->args['order_id'] );
+
+			if ( ! empty( $order_ids ) ) {
+				$placeholders       = implode( ',', array_fill( 0, count( $order_ids ), '%d' ) );
+				$this->query_where .= $wpdb->prepare( " AND shipment_order_id IN ({$placeholders})", ...$order_ids ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			}
 		}
 
 		// order id
@@ -562,7 +565,7 @@ class ShipmentQuery extends WC_Object_Query {
 		$meta_query_clauses = $this->meta_query->get_clauses();
 		$_orderby           = '';
 
-		if ( in_array( $orderby, array( 'country', 'status', 'tracking_id', 'date_created', 'order_id' ), true ) ) {
+		if ( in_array( $orderby, array( 'country', 'status', 'tracking_id', 'date_created', 'order_id', 'date_sent' ), true ) ) {
 			$_orderby = 'shipment_' . $orderby;
 		} elseif ( 'date' === $orderby ) {
 			$_orderby = 'shipment_date_created';

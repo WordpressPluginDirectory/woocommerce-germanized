@@ -168,6 +168,7 @@ class PickupDelivery {
 				'postcode'  => '',
 				'address_1' => '',
 			),
+			'provider'                         => '',
 			'supports_pickup_delivery'         => false,
 			'current_location_code'            => '',
 			'current_location'                 => null,
@@ -195,7 +196,8 @@ class PickupDelivery {
 			);
 		}
 
-		$result['address'] = array_replace_recursive( $result['address'], $address_args );
+		$result['address']  = array_replace_recursive( $result['address'], $address_args );
+		$result['provider'] = $provider ? $provider->get_name() : '';
 
 		if ( is_a( $provider, 'Vendidero\Germanized\Shipments\Interfaces\ShippingProviderAuto' ) ) {
 			if ( $provider->supports_pickup_location_delivery( $result['address'], $query_args ) ) {
@@ -284,6 +286,7 @@ class PickupDelivery {
 								'pickup_location',
 								array(
 									'type'             => 'wc_gzd_shipments_pickup_location',
+									'provider'         => $pickup_delivery_data['provider'],
 									'locations'        => $pickup_delivery_data['locations'],
 									'current_location' => $pickup_delivery_data['current_location'],
 									'default'          => $pickup_delivery_data['current_location'] ? $pickup_delivery_data['current_location']->get_code() : '',
@@ -432,6 +435,8 @@ class PickupDelivery {
 		$args['return']                                     = true;
 		$args['custom_attributes']['data-current-location'] = $args['current_location'] ? wp_json_encode( $args['current_location']->get_data() ) : '';
 
+		do_action( 'woocommerce_gzd_shipments_current_pickup_location_field_rendered' );
+
 		$field = woocommerce_form_field( $key, $args, $value );
 
 		return $field;
@@ -444,6 +449,7 @@ class PickupDelivery {
 				'locations'         => array(),
 				'id'                => $key,
 				'priority'          => '',
+				'provider'          => '',
 				'required'          => false,
 				'custom_attributes' => array(),
 				'current_location'  => null,
@@ -477,6 +483,7 @@ class PickupDelivery {
 		}
 
 		$args['custom_attributes']['data-locations'] = wp_json_encode( $args['custom_attributes']['data-locations'] );
+		$args['custom_attributes']['data-provider']  = $args['provider'];
 
 		if ( count( $args['options'] ) > 0 ) {
 			$args['hidden'] = false;
@@ -628,6 +635,7 @@ class PickupDelivery {
 			}
 		}
 
+		$fragments['.gzd-shipments-current-provider']          = $pickup_delivery_data['provider'];
 		$fragments['.gzd-shipments-pickup-locations']          = wp_json_encode( $locations );
 		$fragments['.gzd-shipments-pickup-location-supported'] = $pickup_delivery_data['supports_pickup_delivery'];
 
@@ -704,6 +712,18 @@ class PickupDelivery {
 	}
 
 	public static function get_pickup_delivery_cart_args() {
+		if ( ! wc()->cart ) {
+			return array(
+				'max_weight'      => 0.0,
+				'max_dimensions'  => array(
+					'length' => 0.0,
+					'width'  => 0.0,
+					'height' => 0.0,
+				),
+				'payment_gateway' => '',
+			);
+		}
+
 		$max_weight      = wc_get_weight( (float) wc()->cart->get_cart_contents_weight(), wc_gzd_get_packaging_weight_unit() );
 		$shipping_method = wc_gzd_get_current_shipping_provider_method();
 		$max_dimensions  = array(
@@ -834,12 +854,32 @@ class PickupDelivery {
 			'priority'         => 62,
 		);
 
-		$fields['order']['current_pickup_location'] = array(
+		$enable_order_notes_field            = apply_filters( 'woocommerce_enable_order_notes_field', 'yes' === get_option( 'woocommerce_enable_order_comments', 'yes' ) );
+		$current_pickup_location_field_group = 'order';
+
+		if ( apply_filters( 'woocommerce_gzd_shipments_render_current_pickup_location_in_billing', ! $enable_order_notes_field ) ) {
+			$current_pickup_location_field_group = 'billing';
+		}
+
+		$current_pickup_location_field = array(
 			'type'             => 'wc_gzd_shipments_current_pickup_location',
 			'current_location' => $pickup_delivery_data['current_location'],
 			'default'          => $pickup_delivery_data['current_location_code'],
 			'label'            => '',
 		);
+
+		$fields[ $current_pickup_location_field_group ]['current_pickup_location'] = $current_pickup_location_field;
+
+		if ( 'order' === $current_pickup_location_field_group ) {
+			add_action(
+				'woocommerce_after_order_notes',
+				function( $checkout ) use ( $current_pickup_location_field ) {
+					if ( ! did_action( 'woocommerce_gzd_shipments_current_pickup_location_field_rendered' ) ) {
+						woocommerce_form_field( 'current_pickup_location', $current_pickup_location_field, $checkout->get_value( 'current_pickup_location' ) );
+					}
+				}
+			);
+		}
 
 		return $fields;
 	}

@@ -27,6 +27,34 @@ class Install {
 			} elseif ( version_compare( $current_version, '3.0.1', '<' ) ) {
 				self::migrate_to_configuration_sets( 'dhl' );
 			}
+
+			if ( version_compare( $current_version, '3.5.0', '<' ) ) {
+				if ( $provider = wc_gzd_get_shipping_provider( 'dhl' ) ) {
+					if ( is_a( $provider, '\Vendidero\Germanized\Shipments\ShippingProvider\Auto' ) && $provider->is_activated() ) {
+						if ( 'yes' === $provider->get_setting( 'parcel_pickup_packstation_enable' ) || 'yes' === $provider->get_setting( 'parcel_pickup_postoffice_enable' ) || 'yes' === $provider->get_setting( 'parcel_pickup_parcelshop_enable' ) ) {
+							$provider->update_setting( 'pickup_locations_enable', 'yes' );
+							$provider->update_setting( 'pickup_locations_max_results', $provider->get_setting( 'parcel_pickup_max_results', 20 ) );
+						} else {
+							$provider->update_setting( 'pickup_locations_enable', 'no' );
+						}
+
+						$provider->save();
+					}
+				}
+
+				if ( $provider = wc_gzd_get_shipping_provider( 'deutsche_post' ) ) {
+					if ( is_a( $provider, '\Vendidero\Germanized\Shipments\ShippingProvider\Auto' ) && $provider->is_activated() ) {
+						if ( 'yes' === $provider->get_setting( 'parcel_pickup_packstation_enable' ) ) {
+							$provider->update_setting( 'pickup_locations_enable', 'yes' );
+							$provider->update_setting( 'pickup_locations_max_results', $provider->get_setting( 'parcel_pickup_max_results', 20 ) );
+						} else {
+							$provider->update_setting( 'pickup_locations_enable', 'no' );
+						}
+
+						$provider->save();
+					}
+				}
+			}
 		}
 
 		self::maybe_create_packaging();
@@ -438,12 +466,14 @@ CREATE TABLE {$wpdb->prefix}woocommerce_gzd_shipment_items (
   shipment_item_order_item_id bigint(20) unsigned NOT NULL,
   shipment_item_product_id bigint(20) unsigned NOT NULL,
   shipment_item_parent_id bigint(20) unsigned NOT NULL,
+  shipment_item_item_parent_id bigint(20) unsigned NOT NULL,
   shipment_item_quantity smallint(4) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY  (shipment_item_id),
   KEY shipment_id (shipment_id),
   KEY shipment_item_order_item_id (shipment_item_order_item_id),
   KEY shipment_item_product_id (shipment_item_product_id),
-  KEY shipment_item_parent_id (shipment_item_parent_id)
+  KEY shipment_item_parent_id (shipment_item_parent_id),
+  KEY shipment_item_item_parent_id (shipment_item_item_parent_id)
 ) $collate;
 CREATE TABLE {$wpdb->prefix}woocommerce_gzd_shipment_itemmeta (
   meta_id bigint(20) unsigned NOT NULL auto_increment,

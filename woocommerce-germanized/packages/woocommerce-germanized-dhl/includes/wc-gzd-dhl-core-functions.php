@@ -151,6 +151,9 @@ function wc_gzd_dhl_get_label_reference( $reference_text, $placeholders = array(
  * @return string
  */
 function wc_gzd_dhl_get_label_customer_reference( $label, $shipment ) {
+	$dhl         = wc_gzd_get_shipping_provider( 'dhl' );
+	$default_ref = $dhl->get_formatted_label_reference( $label, 'simple', 'ref_1' );
+
 	/**
 	 * Filter to adjust the customer reference field placed on the DHL label. Maximum characeter length: 35.
 	 *
@@ -163,18 +166,12 @@ function wc_gzd_dhl_get_label_customer_reference( $label, $shipment ) {
 	 */
 	$ref = apply_filters(
 		'woocommerce_gzd_dhl_label_customer_reference',
-		wc_gzd_dhl_get_label_reference(
-			_x( 'Shipment #{shipment_id} to order {order_id}', 'dhl', 'woocommerce-germanized' ),
-			array(
-				'{shipment_id}' => $shipment->get_shipment_number(),
-				'{order_id}'    => $shipment->get_order_number(),
-			)
-		),
+		$default_ref,
 		$label,
 		$shipment
 	);
 
-	return sanitize_text_field( substr( $ref, 0, 35 ) );
+	return wc_gzd_dhl_escape_reference( $ref );
 }
 
 function wc_gzd_dhl_get_endorsement_types() {
@@ -235,6 +232,9 @@ function wc_gzd_dhl_get_label_endorsement_type( $label, $shipment, $api_type = '
 }
 
 function wc_gzd_dhl_get_return_label_customer_reference( $label, $shipment ) {
+	$dhl         = wc_gzd_get_shipping_provider( 'dhl' );
+	$default_ref = $dhl->get_formatted_label_reference( $label, 'return', 'ref_1' );
+
 	/**
 	 * Filter to adjust the customer reference field placed on the DHL return label. Maximum characeter length: 30.
 	 *
@@ -247,21 +247,28 @@ function wc_gzd_dhl_get_return_label_customer_reference( $label, $shipment ) {
 	 */
 	$ref = apply_filters(
 		'woocommerce_gzd_dhl_return_label_customer_reference',
-		wc_gzd_dhl_get_label_reference(
-			_x( 'Return #{shipment_id} to order {order_id}', 'dhl', 'woocommerce-germanized' ),
-			array(
-				'{shipment_id}' => $shipment->get_id(),
-				'{order_id}'    => $shipment->get_order_number(),
-			)
-		),
+		$default_ref,
 		$label,
 		$shipment
 	);
 
-	return sanitize_text_field( substr( $ref, 0, 30 ) );
+	return wc_gzd_dhl_escape_reference( $ref, 30 );
+}
+
+function wc_gzd_dhl_escape_reference( $ref, $length = 35 ) {
+	/**
+	 * Seems like DHL REST API does not properly escape those strings which leads to cryptic error messages, e.g.:
+	 * Error: CLT103x150 is not a valid print format for shipment null.
+	 */
+	$ref = str_replace( array( '{', '}' ), '', $ref );
+
+	return sanitize_text_field( wc_gzd_shipments_substring( $ref, 0, $length ) );
 }
 
 function wc_gzd_dhl_get_inlay_return_label_reference( $label, $shipment ) {
+	$dhl         = wc_gzd_get_shipping_provider( 'dhl' );
+	$default_ref = $dhl->get_formatted_label_reference( $label, 'simple', 'inlay' );
+
 	/**
 	 * Filter to adjust the inlay return reference field placed on the DHL label. Maximum characeter length: 35.
 	 *
@@ -274,18 +281,12 @@ function wc_gzd_dhl_get_inlay_return_label_reference( $label, $shipment ) {
 	 */
 	$ref = apply_filters(
 		'woocommerce_gzd_dhl_inlay_return_label_reference',
-		wc_gzd_dhl_get_label_reference(
-			_x( 'Return shipment #{shipment_id} to order #{order_id}', 'dhl', 'woocommerce-germanized' ),
-			array(
-				'{shipment_id}' => $shipment->get_id(),
-				'{order_id}'    => $shipment->get_order_number(),
-			)
-		),
+		$default_ref,
 		$label,
 		$shipment
 	);
 
-	return sanitize_text_field( substr( $ref, 0, 35 ) );
+	return wc_gzd_dhl_escape_reference( $ref, 35 );
 }
 
 /**
@@ -517,6 +518,10 @@ function wc_gzd_dhl_get_custom_label_format( $label, $type = '' ) {
 	$available    = $shipment ? $shipment->get_shipping_provider_instance()->get_print_formats()->filter( array( 'product_id' => $label->get_product_id() ) )->as_options() : array();
 	$label_format = 'default' === $label->get_print_format() ? '' : $label->get_print_format();
 
+	if ( 'inlay_return' === $type ) {
+		$available = array_diff( $available, array( '100x70mm' ) );
+	}
+
 	/**
 	 * This filter allows adjusting the default label format (GUI) to a custom format e.g. 910-300-700.
 	 * The following formats are available:
@@ -540,7 +545,10 @@ function wc_gzd_dhl_get_custom_label_format( $label, $type = '' ) {
 	 */
 	$format = apply_filters( 'woocommerce_gzd_dhl_label_custom_format', $label_format, $label, $type );
 
-	if ( ! empty( $format ) && ! array_key_exists( $format, $available ) ) {
+	/**
+	 * Do not allow Warenpost label format for inlay returns
+	 */
+	if ( ! empty( $format ) && ( ! array_key_exists( $format, $available ) ) ) {
 		$format = '';
 	}
 
