@@ -89,21 +89,26 @@ class LocationFinder extends Rest {
 		$address = wp_parse_args(
 			$address,
 			array(
-				'city'     => '',
-				'zip'      => '',
-				'street'   => '',
-				'streetNo' => '',
-				'address'  => '',
-				'country'  => 'DE',
+				'city'    => '',
+				'zip'     => '',
+				'address' => '',
+				'country' => 'DE',
 			)
 		);
 
-		if ( ! empty( $address['address'] ) ) {
-			$parsed = wc_gzd_split_shipment_street( $address['address'] );
+		$address_esc = strtolower( $address['address'] );
 
-			$address['street']   = $parsed['street'];
-			$address['streetNo'] = $parsed['number'];
+		if ( strstr( $address_esc, 'packstation' ) || strstr( $address_esc, 'postfiliale' ) ) {
+			$address['address'] = '';
 		}
+
+		/**
+		 * Somehow the API returns wrong locations in case the address is missing, e.g.
+		 * a search for the postcode 12203 yields results for the center of Berlin.
+		 * Remove the city in case a zip is provided as a tweak too.
+		 */
+		$address['address'] = empty( $address['address'] ) ? 'xxx' : $address['address'];
+		$address['city']    = ! empty( $address['zip'] ) ? '' : $address['city'];
 
 		$default_types = array();
 
