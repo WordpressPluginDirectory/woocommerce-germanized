@@ -147,6 +147,7 @@ abstract class Shipment extends WC_Data {
 		'height'                          => '',
 		'length'                          => '',
 		'packaging_weight'                => '',
+		'packaging_title'                 => '',
 		'weight_unit'                     => '',
 		'dimension_unit'                  => '',
 		'country'                         => '',
@@ -486,6 +487,18 @@ abstract class Shipment extends WC_Data {
 		return $weight;
 	}
 
+	public function get_packaging_title( $context = 'view' ) {
+		$title = $this->get_prop( 'packaging_title', $context );
+
+		if ( 'view' === $context && '' === $title ) {
+			if ( $packaging = $this->get_packaging() ) {
+				$title = $packaging->get_title();
+			}
+		}
+
+		return $title;
+	}
+
 	/**
 	 * @return ShipmentItem[]|ItemList
 	 */
@@ -644,8 +657,8 @@ abstract class Shipment extends WC_Data {
 		if ( is_null( $this->weights ) ) {
 			$this->weights = array();
 
-			foreach ( $this->get_items() as $item ) {
-				$this->weights[ $item->get_id() ] = ( ( $item->get_weight() === '' ? 0 : $item->get_weight() ) * $item->get_quantity() );
+			foreach ( $this->get_items() as $k => $item ) {
+				$this->weights[ $k ] = ( ( $item->get_weight() === '' ? 0 : $item->get_weight() ) * $item->get_quantity() );
 			}
 
 			if ( empty( $this->weights ) ) {
@@ -665,8 +678,8 @@ abstract class Shipment extends WC_Data {
 		if ( is_null( $this->lengths ) ) {
 			$this->lengths = array();
 
-			foreach ( $this->get_items() as $item ) {
-				$this->lengths[ $item->get_id() ] = $item->get_length() === '' ? 0 : $item->get_length();
+			foreach ( $this->get_items() as $k => $item ) {
+				$this->lengths[ $k ] = $item->get_length() === '' ? 0 : $item->get_length();
 			}
 
 			if ( empty( $this->lengths ) ) {
@@ -681,11 +694,11 @@ abstract class Shipment extends WC_Data {
 		if ( is_null( $this->volumes ) ) {
 			$this->volumes = array();
 
-			foreach ( $this->get_items() as $item ) {
+			foreach ( $this->get_items() as $k => $item ) {
 				$dimensions = $item->get_dimensions();
 				$volume     = ( '' !== $dimensions['length'] ? (float) $dimensions['length'] : 0 ) * ( '' !== $dimensions['width'] ? (float) $dimensions['width'] : 0 ) * ( '' !== $dimensions['height'] ? (float) $dimensions['height'] : 0 );
 
-				$this->volumes[ $item->get_id() ] = $volume * (float) $item->get_quantity();
+				$this->volumes[ $k ] = $volume * (float) $item->get_quantity();
 			}
 
 			if ( empty( $this->volumes ) ) {
@@ -705,8 +718,8 @@ abstract class Shipment extends WC_Data {
 		if ( is_null( $this->widths ) ) {
 			$this->widths = array();
 
-			foreach ( $this->get_items() as $item ) {
-				$this->widths[ $item->get_id() ] = $item->get_width() === '' ? 0 : $item->get_width();
+			foreach ( $this->get_items() as $k => $item ) {
+				$this->widths[ $k ] = $item->get_width() === '' ? 0 : $item->get_width();
 			}
 
 			if ( empty( $this->widths ) ) {
@@ -726,8 +739,8 @@ abstract class Shipment extends WC_Data {
 		if ( is_null( $this->heights ) ) {
 			$this->heights = array();
 
-			foreach ( $this->get_items() as $item ) {
-				$this->heights[ $item->get_id() ] = ( $item->get_height() === '' ? 0 : $item->get_height() ) * $item->get_quantity();
+			foreach ( $this->get_items() as $k => $item ) {
+				$this->heights[ $k ] = ( $item->get_height() === '' ? 0 : $item->get_height() ) * $item->get_quantity();
 			}
 
 			if ( empty( $this->heights ) ) {
@@ -1863,6 +1876,10 @@ abstract class Shipment extends WC_Data {
 		$this->set_prop( 'packaging_weight', '' === $weight ? '' : wc_format_decimal( $weight ) );
 	}
 
+	public function set_packaging_title( $title ) {
+		$this->set_prop( 'packaging_title', $title );
+	}
+
 	/**
 	 * Set shipment total weight.
 	 *
@@ -2092,11 +2109,15 @@ abstract class Shipment extends WC_Data {
 				'length'           => wc_get_dimension( $packaging->get_length( 'edit' ), $this->get_dimension_unit(), $packaging_dimension ),
 				'height'           => wc_get_dimension( $packaging->get_height( 'edit' ), $this->get_dimension_unit(), $packaging_dimension ),
 				'packaging_weight' => wc_get_weight( $packaging->get_weight( 'edit' ), $this->get_weight_unit(), wc_gzd_get_packaging_weight_unit() ),
+				'packaging_title'  => $packaging->get_title(),
 			);
 
 			$this->set_props( $props );
 		} else {
-			$props   = array( 'packaging_weight' => '' );
+			$props   = array(
+				'packaging_weight' => '',
+				'packaging_title'  => '',
+			);
 			$changes = $this->get_changes();
 
 			/**
@@ -2291,7 +2312,7 @@ abstract class Shipment extends WC_Data {
 	/**
 	 * Reset item content data.
 	 */
-	protected function reset_content_data() {
+	public function reset_content_data() {
 		$this->weights = null;
 		$this->lengths = null;
 		$this->widths  = null;

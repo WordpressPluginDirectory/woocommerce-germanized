@@ -25,7 +25,7 @@ class Package {
 	 *
 	 * @var string
 	 */
-	const VERSION = '3.2.0';
+	const VERSION = '3.3.0';
 
 	public static $upload_dir_suffix = '';
 
@@ -636,7 +636,7 @@ class Package {
 	 * @return mixed|string|void
 	 */
 	public static function get_gk_api_user() {
-		$user = self::is_debug_mode() ? '2222222222_01' : self::get_setting( 'api_username' );
+		$user = self::is_debug_mode() ? 'user-valid' : self::get_setting( 'api_username' );
 
 		return strtolower( $user );
 	}
@@ -647,7 +647,7 @@ class Package {
 	 * @return mixed|string|void
 	 */
 	public static function get_gk_api_signature() {
-		return self::is_debug_mode() ? 'pass' : self::get_setting( 'api_password' );
+		return self::is_debug_mode() ? 'SandboxPasswort2023!' : self::get_setting( 'api_password' );
 	}
 
 	/**
@@ -968,7 +968,7 @@ class Package {
 				 */
 				add_filter(
 					'http_request_args',
-					function( $args, $url ) use ( $file_link ) {
+					function ( $args, $url ) use ( $file_link ) {
 						if ( $url === $file_link ) {
 							$args['reject_unsafe_urls'] = false;
 						}
@@ -1020,7 +1020,7 @@ class Package {
 								}
 							}
 
-							@unlink( $new_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+							@unlink( $new_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
 						} else {
 							$transient = 'wc_gzd_dhl_wsdl_' . sanitize_key( $main_file );
 							$file_path = $uploads['path'] . "/$main_file";
@@ -1031,7 +1031,7 @@ class Package {
 							}
 						}
 
-						@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
 					}
 				}
 			}
@@ -1101,9 +1101,9 @@ class Package {
 	 *
 	 * @return mixed|void
 	 */
-	public static function get_setting( $name, $shipment = false, $default = false ) {
+	public static function get_setting( $name, $shipment = false, $default_value = false ) {
 		$is_dp = false;
-		$value = $default;
+		$value = $default_value;
 
 		if ( substr( $name, 0, 4 ) === 'dhl_' ) {
 			$name = substr( $name, 4 );
@@ -1124,12 +1124,10 @@ class Package {
 
 		if ( ! $is_dp ) {
 			if ( $provider = self::get_dhl_shipping_provider() ) {
-				$value = $provider->get_setting( $name, $default );
+				$value = $provider->get_setting( $name, $default_value );
 			}
-		} else {
-			if ( $provider = self::get_deutsche_post_shipping_provider() ) {
-				$value = $provider->get_setting( $name, $default );
-			}
+		} elseif ( $provider = self::get_deutsche_post_shipping_provider() ) {
+				$value = $provider->get_setting( $name, $default_value );
 		}
 
 		return $value;

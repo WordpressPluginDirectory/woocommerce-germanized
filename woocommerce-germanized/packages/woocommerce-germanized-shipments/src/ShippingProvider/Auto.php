@@ -448,7 +448,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 				'title'   => _x( 'Enable', 'shipments', 'woocommerce-germanized' ),
 				'desc'    => _x( 'Allow customers to choose a pickup location within checkout.', 'shipments', 'woocommerce-germanized' ),
 				'id'      => 'pickup_locations_enable',
-				'type'    => 'gzd_toggle',
+				'type'    => 'gzd_shipments_toggle',
 				'default' => 'yes',
 				'value'   => wc_bool_to_string( $this->get_setting( 'pickup_locations_enable', 'yes' ) ),
 			),
@@ -498,7 +498,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 					'title' => _x( 'Labels', 'shipments', 'woocommerce-germanized' ),
 					'desc'  => _x( 'Automatically create labels for shipments.', 'shipments', 'woocommerce-germanized' ),
 					'id'    => 'label_auto_enable',
-					'type'  => 'gzd_toggle',
+					'type'  => 'gzd_shipments_toggle',
 					'value' => wc_bool_to_string( $this->get_setting( 'label_auto_enable' ) ),
 				),
 
@@ -506,7 +506,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 					'title'             => _x( 'Status', 'shipments', 'woocommerce-germanized' ),
 					'type'              => 'select',
 					'id'                => 'label_auto_shipment_status',
-					'desc'              => '<div class="wc-gzd-additional-desc">' . _x( 'Choose a shipment status which should trigger generation of a label.', 'shipments', 'woocommerce-germanized' ) . ' ' . ( 'yes' === Package::get_setting( 'auto_enable' ) ? sprintf( _x( 'Your current default shipment status is: <em>%s</em>.', 'shipments', 'woocommerce-germanized' ), wc_gzd_get_shipment_status_name( Package::get_setting( 'auto_default_status' ) ) ) : '' ) . '</div>',
+					'desc'              => '<div class="wc-gzd-shipments-additional-desc">' . _x( 'Choose a shipment status which should trigger generation of a label.', 'shipments', 'woocommerce-germanized' ) . ' ' . ( 'yes' === Package::get_setting( 'auto_enable' ) ? sprintf( _x( 'Your current default shipment status is: <em>%s</em>.', 'shipments', 'woocommerce-germanized' ), wc_gzd_get_shipment_status_name( Package::get_setting( 'auto_default_status' ) ) ) : '' ) . '</div>',
 					'options'           => $shipment_statuses,
 					'class'             => 'wc-enhanced-select',
 					'custom_attributes' => array( 'data-show_if_label_auto_enable' => '' ),
@@ -517,7 +517,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 					'title' => _x( 'Shipment Status', 'shipments', 'woocommerce-germanized' ),
 					'desc'  => _x( 'Mark shipment as shipped after label has been created successfully.', 'shipments', 'woocommerce-germanized' ),
 					'id'    => 'label_auto_shipment_status_shipped',
-					'type'  => 'gzd_toggle',
+					'type'  => 'gzd_shipments_toggle',
 					'value' => wc_bool_to_string( $this->get_setting( 'label_auto_shipment_status_shipped' ) ),
 				),
 			)
@@ -531,7 +531,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 						'title' => _x( 'Returns', 'shipments', 'woocommerce-germanized' ),
 						'desc'  => _x( 'Automatically create labels for returns.', 'shipments', 'woocommerce-germanized' ),
 						'id'    => 'label_return_auto_enable',
-						'type'  => 'gzd_toggle',
+						'type'  => 'gzd_shipments_toggle',
 						'value' => wc_bool_to_string( $this->get_setting( 'label_return_auto_enable' ) ),
 					),
 
@@ -539,7 +539,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 						'title'             => _x( 'Status', 'shipments', 'woocommerce-germanized' ),
 						'type'              => 'select',
 						'id'                => 'label_return_auto_shipment_status',
-						'desc'              => '<div class="wc-gzd-additional-desc">' . _x( 'Choose a shipment status which should trigger generation of a return label.', 'shipments', 'woocommerce-germanized' ) . '</div>',
+						'desc'              => '<div class="wc-gzd-shipments-additional-desc">' . _x( 'Choose a shipment status which should trigger generation of a return label.', 'shipments', 'woocommerce-germanized' ) . '</div>',
 						'options'           => $shipment_statuses,
 						'class'             => 'wc-enhanced-select',
 						'custom_attributes' => array( 'data-show_if_label_return_auto_enable' => '' ),
@@ -761,7 +761,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 
 			$reference_settings[] = array(
 				'title'        => $reference_type_data['label'],
-				'desc'         => '<div class="wc-gzd-additional-desc">' . sprintf( _x( 'Adjust %1$s printed on the %2$s label. Use the following placeholders to format the reference: %3$s', 'shipments', 'woocommerce-germanized' ), $reference_type_data['label'], $shipment_label_title, $formatted_placeholders ) . ( -1 !== $reference_type_data['max_length'] ? sprintf( _x( 'Please keep in mind that the formatted reference cannot exceed %1$s characters.', 'shipments', 'woocommerce-germanized' ), $reference_type_data['max_length'] ) : '' ) . '</div>',
+				'desc'         => '<div class="wc-gzd-shipments-additional-desc">' . sprintf( _x( 'Adjust %1$s printed on the %2$s label. Use the following placeholders to format the reference: %3$s', 'shipments', 'woocommerce-germanized' ), $reference_type_data['label'], $shipment_label_title, $formatted_placeholders ) . ( -1 !== $reference_type_data['max_length'] ? sprintf( _x( 'Please keep in mind that the formatted reference cannot exceed %1$s characters.', 'shipments', 'woocommerce-germanized' ), $reference_type_data['max_length'] ) : '' ) . '</div>',
 				'id'           => "shipping_provider_label_reference_{$shipment_type}_{$reference_type}",
 				'placeholder'  => $reference_type_data['default'],
 				'value'        => $this->get_label_reference( $shipment_type, $reference_type, 'edit' ),
@@ -923,7 +923,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 					$count = 0;
 
 					foreach ( $service_setting_fields as $k => $service_setting ) {
-						$count++;
+						++$count;
 
 						$service_setting_fields[ $k ] = wp_parse_args(
 							$service_setting_fields[ $k ],
@@ -1379,7 +1379,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 						$hits = false === get_transient( "{$this->get_general_hook_prefix()}label_rate_limit_hits" ) ? 0 : absint( get_transient( "{$this->get_general_hook_prefix()}label_rate_limit_hits" ) );
 
 						if ( $hits <= apply_filters( 'woocommerce_gzd_shipments_max_api_retries', 5 ) ) {
-							$hits++;
+							++$hits;
 
 							sleep( 0.25 * $hits );
 							set_transient( "{$this->get_general_hook_prefix()}label_rate_limit_hits", $hits, MINUTE_IN_SECONDS );
@@ -1614,7 +1614,7 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 
 						if ( 'sectionend' === $setting['type'] ) {
 							$setting['type'] = 'title';
-						} elseif ( 'gzd_toggle' === $setting['type'] ) {
+						} elseif ( 'gzd_shipments_toggle' === $setting['type'] ) {
 							$setting['type'] = 'checkbox';
 						}
 
@@ -1649,19 +1649,19 @@ abstract class Auto extends Simple implements ShippingProviderAuto {
 		return 'shipping_provider';
 	}
 
-	public function get_setting( $key, $default = null, $context = 'view' ) {
+	public function get_setting( $key, $default_value = null, $context = 'view' ) {
 		$setting_name_clean = $this->unprefix_setting_key( $key );
 
 		if ( $this->is_configuration_set_setting( $setting_name_clean ) ) {
 			if ( $configuration_set = $this->get_configuration_set( $setting_name_clean ) ) {
-				$value = $configuration_set->get_setting( $setting_name_clean, $default );
+				$value = $configuration_set->get_setting( $setting_name_clean, $default_value );
 			} else {
-				$value = $default;
+				$value = $default_value;
 			}
 
-			return apply_filters( "{$this->get_hook_prefix()}setting_{$setting_name_clean}", $value, $key, $default, $context );
+			return apply_filters( "{$this->get_hook_prefix()}setting_{$setting_name_clean}", $value, $key, $default_value, $context );
 		} else {
-			return parent::get_setting( $key, $default, $context );
+			return parent::get_setting( $key, $default_value, $context );
 		}
 	}
 

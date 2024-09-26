@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
 class DeutschePost extends Auto {
 
 	use PickupDeliveryTrait;
+
 	protected function get_default_label_default_print_format() {
 		return 1;
 	}
@@ -117,7 +118,7 @@ class DeutschePost extends Auto {
 					'title' => _x( 'Printing', 'dhl', 'woocommerce-germanized' ),
 					'type'  => 'title',
 					'id'    => 'shipping_provider_label_printing_options',
-					'desc'  => '<div class="wc-gzd-additional-desc">' . sprintf( _x( 'Choose a print format which will be selected by default when creating labels. Manually <a href="%s">refresh</a> available print formats to make sure the list is up-to-date.', 'dhl', 'woocommerce-germanized' ), esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'wc-gzd-dhl-im-page-formats-refresh' ), $settings_url ), 'wc-gzd-dhl-refresh-im-page-formats' ) ) ) . '</div>',
+					'desc'  => '<div class="wc-gzd-shipments-additional-desc">' . sprintf( _x( 'Choose a print format which will be selected by default when creating labels. Manually <a href="%s">refresh</a> available print formats to make sure the list is up-to-date.', 'dhl', 'woocommerce-germanized' ), esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'wc-gzd-dhl-im-page-formats-refresh' ), $settings_url ), 'wc-gzd-dhl-refresh-im-page-formats' ) ) ) . '</div>',
 				),
 				array(
 					'title'             => _x( 'Print X-axis column', 'dhl', 'woocommerce-germanized' ),
@@ -177,7 +178,7 @@ class DeutschePost extends Auto {
 			array(
 				'title'             => _x( 'Username', 'dhl', 'woocommerce-germanized' ),
 				'type'              => 'text',
-				'desc'              => '<div class="wc-gzd-additional-desc">' . sprintf( _x( 'Your credentials to the <a href="%s" target="_blank">Portokasse</a>. Please test your credentials before connecting.', 'dhl', 'woocommerce-germanized' ), 'https://portokasse.deutschepost.de/portokasse/#!/' ) . '</div>',
+				'desc'              => '<div class="wc-gzd-shipments-additional-desc">' . sprintf( _x( 'Your credentials to the <a href="%s" target="_blank">Portokasse</a>. Please test your credentials before connecting.', 'dhl', 'woocommerce-germanized' ), 'https://portokasse.deutschepost.de/portokasse/#!/' ) . '</div>',
 				'id'                => 'api_username',
 				'default'           => '',
 				'value'             => $this->get_setting( 'api_username', '' ),
@@ -658,7 +659,7 @@ class DeutschePost extends Auto {
 					'id'                => 'parcel_pickup_packstation_enable',
 					'value'             => wc_bool_to_string( $this->get_setting( 'parcel_pickup_packstation_enable' ) ),
 					'default'           => 'yes',
-					'type'              => 'gzd_toggle',
+					'type'              => 'gzd_shipments_toggle',
 					'custom_attributes' => array( 'data-show_if_pickup_locations_enable' => '' ),
 				),
 				array(

@@ -42,6 +42,7 @@ class Ajax {
 			'shipments_bulk_action_handle',
 			'remove_shipping_provider',
 			'sort_shipping_provider',
+			'install_shipping_provider_extension',
 			'edit_shipping_provider_status',
 			'create_shipment_label_load',
 			'create_shipment_label_submit',
@@ -59,7 +60,7 @@ class Ajax {
 
 	public static function suppress_errors() {
 		if ( ! WP_DEBUG || ( WP_DEBUG && ! WP_DEBUG_DISPLAY ) ) {
-			@ini_set( 'display_errors', 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.IniSet.display_errors_Blacklisted
+			@ini_set( 'display_errors', 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.IniSet.display_errors_Disallowed
 		}
 
 		$GLOBALS['wpdb']->hide_errors();
@@ -91,8 +92,7 @@ class Ajax {
 			if ( isset( $_GET['shipment_id'] ) ) {
 				wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=wc-gzd-return-shipments' ) );
 				exit;
-			} else {
-				if ( $success ) {
+			} elseif ( $success ) {
 					wp_send_json(
 						array(
 							'success'  => true,
@@ -101,16 +101,15 @@ class Ajax {
 							),
 						)
 					);
-				} else {
-					wp_send_json(
-						array(
-							'success'  => false,
-							'messages' => array(
-								_x( 'There was an error while sending the notification.', 'shipments', 'woocommerce-germanized' ),
-							),
-						)
-					);
-				}
+			} else {
+				wp_send_json(
+					array(
+						'success'  => false,
+						'messages' => array(
+							_x( 'There was an error while sending the notification.', 'shipments', 'woocommerce-germanized' ),
+						),
+					)
+				);
 			}
 		}
 	}
@@ -142,8 +141,7 @@ class Ajax {
 			if ( isset( $_GET['shipment_id'] ) ) {
 				wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=wc-gzd-return-shipments' ) );
 				exit;
-			} else {
-				if ( $success ) {
+			} elseif ( $success ) {
 					wp_send_json(
 						array(
 							'success'       => true,
@@ -157,16 +155,15 @@ class Ajax {
 							),
 						)
 					);
-				} else {
-					wp_send_json(
-						array(
-							'success'  => false,
-							'messages' => array(
-								_x( 'There was an error while confirming the request.', 'shipments', 'woocommerce-germanized' ),
-							),
-						)
-					);
-				}
+			} else {
+				wp_send_json(
+					array(
+						'success'  => false,
+						'messages' => array(
+							_x( 'There was an error while confirming the request.', 'shipments', 'woocommerce-germanized' ),
+						),
+					)
+				);
 			}
 		}
 	}
@@ -457,6 +454,42 @@ class Ajax {
 		}
 	}
 
+	public static function install_shipping_provider_extension() {
+		check_ajax_referer( 'install-shipping-provider-extension', 'security' );
+
+		if ( ! current_user_can( 'install_plugins' ) || ! isset( $_POST['provider_name'] ) ) {
+			wp_die( - 1 );
+		}
+
+		$provider_name = wc_clean( wp_unslash( $_POST['provider_name'] ) );
+		$provider_name = '_' === substr( $provider_name, 0, 1 ) ? substr( $provider_name, 1 ) : $provider_name;
+		$placeholder   = ShippingProvider\Helper::instance()->get_shipping_provider_integration( $provider_name );
+
+		if ( $placeholder && $placeholder->get_extension_name() && \Vendidero\Germanized\Shipments\Extensions::is_plugin_whitelisted( $placeholder->get_extension_name() ) ) {
+			$result = \Vendidero\Germanized\Shipments\Extensions::install_or_activate_extension( $placeholder->get_extension_name() );
+
+			ShippingProvider\Helper::instance()->load_shipping_providers();
+
+			if ( $provider = wc_gzd_get_shipping_provider( $provider_name ) ) {
+				wp_send_json(
+					array(
+						'success'   => true,
+						'extension' => $placeholder->get_extension_name(),
+						'url'       => $provider->get_edit_link(),
+					)
+				);
+			} else {
+				$message = sprintf( _x( 'There was an error while automatically installing %1$s. %2$s', 'shipments', 'woocommerce-germanized' ), esc_html( $placeholder->get_title() ), \Vendidero\Germanized\Shipments\Extensions::get_plugin_manual_install_message( $placeholder->get_extension_name() ) );
+
+				wp_send_json(
+					array(
+						'message' => $message,
+					)
+				);
+			}
+		}
+	}
+
 	public static function sort_shipping_provider() {
 		check_ajax_referer( 'sort-shipping-provider', 'security' );
 
@@ -602,7 +635,7 @@ class Ajax {
 	private static function get_shipment_ids( $shipments ) {
 		return array_values(
 			array_map(
-				function( $s ) {
+				function ( $s ) {
 					return $s->get_id();
 				},
 				$shipments
@@ -712,7 +745,7 @@ class Ajax {
 		$shipment_count = 0;
 
 		foreach ( $shipments as $id => $shipment ) {
-			$shipment_count++;
+			++$shipment_count;
 			$shipment_type = $shipment->get_type();
 
 			if ( 1 === $shipment_count ) {
@@ -951,19 +984,17 @@ class Ajax {
 
 		if ( Package::is_hpos_enabled() ) {
 			$ids = wc_get_orders( array( 's' => $term ) );
-		} else {
-			if ( ! is_numeric( $term ) ) {
+		} elseif ( ! is_numeric( $term ) ) {
 				$ids = wc_get_orders( array( 's' => $term ) );
-			} else {
-				global $wpdb;
+		} else {
+			global $wpdb;
 
-				$ids = $wpdb->get_col(
-					$wpdb->prepare(
-				        "SELECT DISTINCT p1.ID FROM {$wpdb->posts} p1 WHERE p1.ID LIKE %s AND post_type = 'shop_order'", // @codingStandardsIgnoreLine
-						$wpdb->esc_like( wc_clean( $term ) ) . '%'
-					)
-				);
-			}
+			$ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT DISTINCT p1.ID FROM {$wpdb->posts} p1 WHERE p1.ID LIKE %s AND post_type = 'shop_order'", // @codingStandardsIgnoreLine
+					$wpdb->esc_like( wc_clean( $term ) ) . '%'
+				)
+			);
 		}
 
 		$excluded = array();

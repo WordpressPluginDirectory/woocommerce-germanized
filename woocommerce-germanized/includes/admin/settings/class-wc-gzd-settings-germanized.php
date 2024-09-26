@@ -163,11 +163,17 @@ class WC_GZD_Settings_Germanized extends WC_Settings_Page {
 	}
 
 	protected function is_active() {
-		if ( isset( $_GET['tab'] ) && strpos( wc_clean( wp_unslash( $_GET['tab'] ) ), 'germanized' ) !== false ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return true;
+		$is_active = false;
+
+		if ( isset( $_GET['tab'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$tab_name = wc_clean( wp_unslash( $_GET['tab'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( strstr( $tab_name, 'germanized' ) || strstr( $tab_name, 'shipments' ) ) {
+				$is_active = true;
+			}
 		}
 
-		return false;
+		return $is_active;
 	}
 
 	public function add_body_classes( $classes ) {
@@ -179,25 +185,24 @@ class WC_GZD_Settings_Germanized extends WC_Settings_Page {
 	}
 
 	public function get_tabs() {
-		include_once dirname( __FILE__ ) . '/abstract-wc-gzd-settings-tab.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-general.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-shopmarks.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-emails.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-taxes.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-button-solution.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-checkboxes.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-doi.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-oss.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-contract.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-invoices.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-multistep-checkout.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-terms-generator.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-revocation-generator.php';
-		include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-trusted-shops.php';
+		include_once __DIR__ . '/abstract-wc-gzd-settings-tab.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-general.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-shopmarks.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-emails.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-taxes.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-button-solution.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-checkboxes.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-doi.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-oss.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-contract.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-invoices.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-multistep-checkout.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-terms-generator.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-revocation-generator.php';
+		include_once __DIR__ . '/class-wc-gzd-settings-tab-trusted-shops.php';
 
 		if ( class_exists( '\Vendidero\Germanized\Shipments\Package' ) && Package::has_dependencies() ) {
-			include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-shipments.php';
-			include_once dirname( __FILE__ ) . '/class-wc-gzd-settings-tab-shipping-provider.php';
+			include_once __DIR__ . '/class-wc-gzd-settings-tab-shipments.php';
 		}
 
 		/**
@@ -263,6 +268,6 @@ class WC_GZD_Settings_Germanized extends WC_Settings_Page {
 		$GLOBALS['hide_save_button'] = true;
 		$tabs                        = $this->get_tabs();
 
-		include_once dirname( __FILE__ ) . '/views/html-admin-settings-tabs.php';
+		include_once __DIR__ . '/views/html-admin-settings-tabs.php';
 	}
 }

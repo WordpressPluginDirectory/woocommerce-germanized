@@ -2,6 +2,7 @@
 
 namespace Vendidero\Germanized\Shipments;
 
+use Vendidero\Germanized\Shipments\Admin\Tabs\Tabs;
 use Vendidero\Germanized\Shipments\Interfaces\ShippingProvider;
 use Vendidero\Germanized\Shipments\Labels\ConfigurationSetTrait;
 use Vendidero\Germanized\Shipments\ShippingMethod\MethodHelper;
@@ -19,6 +20,7 @@ class Install {
 
 		self::create_upload_dir();
 		self::create_tables();
+		self::create_default_options();
 		self::maybe_create_return_reasons();
 
 		if ( ! is_null( $current_version ) ) {
@@ -64,6 +66,61 @@ class Install {
 		update_option( 'woocommerce_gzd_shipments_db_version', Package::get_version() );
 
 		do_action( 'woocommerce_flush_rewrite_rules' );
+	}
+
+	public static function deactivate() {
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			$hooks = array(
+				'woocommerce_gzd_shipments_daily_cleanup',
+			);
+
+			foreach ( $hooks as $hook ) {
+				as_unschedule_all_actions( $hook );
+			}
+		}
+	}
+
+	protected static function create_default_options() {
+		if ( ! class_exists( 'WC_Settings_Page' ) ) {
+			include_once WC()->plugin_path() . '/includes/admin/settings/class-wc-settings-page.php';
+		}
+
+		$settings = false;
+
+		if ( is_admin() ) {
+			include_once WC()->plugin_path() . '/includes/admin/class-wc-admin-settings.php';
+
+			foreach ( \WC_Admin_Settings::get_settings_pages() as $page ) {
+				if ( is_a( $page, '\Vendidero\Germanized\Shipments\Admin\Tabs\Tabs' ) ) {
+					$settings = $page;
+				}
+			}
+		}
+
+		if ( ! $settings ) {
+			$settings = new Tabs();
+		}
+
+		$options = $settings->get_settings_for_section_core( '' );
+
+		foreach ( $options as $value ) {
+			$value = wp_parse_args(
+				$value,
+				array(
+					'id'           => '',
+					'default'      => null,
+					'skip_install' => false,
+					'autoload'     => true,
+				)
+			);
+
+			if ( $value['default'] && ! empty( $value['id'] ) && ! $value['skip_install'] ) {
+				wp_cache_delete( $value['id'], 'options' );
+				$autoload = (bool) $value['autoload'];
+
+				add_option( $value['id'], $value['default'], '', ( $autoload ? 'yes' : 'no' ) );
+			}
+		}
 	}
 
 	protected static function get_configuration_set_data( $setting_name, $value ) {
@@ -433,15 +490,15 @@ class Install {
 		$dir = Package::get_upload_dir();
 
 		if ( ! @is_dir( $dir['basedir'] ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			@mkdir( $dir['basedir'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			@mkdir( $dir['basedir'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 		}
 
 		if ( ! file_exists( trailingslashit( $dir['basedir'] ) . '.htaccess' ) ) {
-			@file_put_contents( trailingslashit( $dir['basedir'] ) . '.htaccess', 'deny from all' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			@file_put_contents( trailingslashit( $dir['basedir'] ) . '.htaccess', 'deny from all' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		}
 
 		if ( ! file_exists( trailingslashit( $dir['basedir'] ) . 'index.php' ) ) {
-			@touch( trailingslashit( $dir['basedir'] ) . 'index.php' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			@touch( trailingslashit( $dir['basedir'] ) . 'index.php' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_touch
 		}
 	}
 
@@ -548,6 +605,8 @@ CREATE TABLE {$wpdb->prefix}woocommerce_gzd_packaging (
   packaging_type varchar(200) NOT NULL DEFAULT '',
   packaging_description tinytext NOT NULL DEFAULT '',
   packaging_weight decimal(6,2) unsigned NOT NULL DEFAULT 0,
+  packaging_weight_unit varchar(50) NOT NULL DEFAULT '',
+  packaging_dimension_unit varchar(50) NOT NULL DEFAULT '',
   packaging_order bigint(20) unsigned NOT NULL DEFAULT 0,
   packaging_max_content_weight decimal(6,2) unsigned NOT NULL DEFAULT 0,
   packaging_length decimal(6,2) unsigned NOT NULL DEFAULT 0,

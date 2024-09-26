@@ -153,6 +153,29 @@ class WC_GZD_REST_Products_Controller {
 				),
 			),
 		);
+		$schema_properties['manufacturer']             = array(
+			'description' => __( 'Manufacturer', 'woocommerce-germanized' ),
+			'type'        => 'object',
+			'context'     => array( 'view', 'edit' ),
+			'properties'  => array(
+				'id'   => array(
+					'description' => __( 'Manufacturer ID', 'woocommerce-germanized' ),
+					'type'        => 'integer',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'name' => array(
+					'description' => __( 'Manufacturer Name', 'woocommerce-germanized' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'slug' => array(
+					'description' => __( 'Manufacturer Slug', 'woocommerce-germanized' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+			),
+		);
 		$schema_properties['unit']                     = array(
 			'description' => __( 'Unit', 'woocommerce-germanized' ),
 			'type'        => 'object',
@@ -235,6 +258,14 @@ class WC_GZD_REST_Products_Controller {
 			'type'        => 'boolean',
 			'default'     => false,
 			'context'     => array( 'view', 'edit' ),
+		);
+		$schema_properties['safety_attachment_ids']    = array(
+			'description' => __( 'Safety attachment ids', 'woocommerce-germanized' ),
+			'type'        => 'array',
+			'context'     => array( 'view', 'edit' ),
+			'items'       => array(
+				'type' => 'integer',
+			),
 		);
 		$schema_properties['min_age']                  = array(
 			'description' => __( 'Age verification minimum age.', 'woocommerce-germanized' ),
@@ -523,6 +554,29 @@ class WC_GZD_REST_Products_Controller {
 				),
 			),
 		);
+		$schema_properties['variations']['items']['properties']['manufacturer']             = array(
+			'description' => __( 'Manufacturer', 'woocommerce-germanized' ),
+			'type'        => 'object',
+			'context'     => array( 'view', 'edit' ),
+			'properties'  => array(
+				'id'   => array(
+					'description' => __( 'Manufacturer ID', 'woocommerce-germanized' ),
+					'type'        => 'integer',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'name' => array(
+					'description' => __( 'Manufacturer Name', 'woocommerce-germanized' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'slug' => array(
+					'description' => __( 'Manufacturer Slug', 'woocommerce-germanized' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+			),
+		);
 		$schema_properties['variations']['items']['properties']['service']                  = array(
 			'description' => __( 'Whether this product is a service or not', 'woocommerce-germanized' ),
 			'type'        => 'boolean',
@@ -555,6 +609,14 @@ class WC_GZD_REST_Products_Controller {
 		$schema_properties['variations']['items']['properties']['defect_description']       = array(
 			'description' => __( 'Defect description', 'woocommerce-germanized' ),
 			'type'        => 'string',
+			'context'     => array( 'view', 'edit' ),
+		);
+		$schema_properties['variations']['items']['properties']['safety_attachment_ids']    = array(
+			'description' => __( 'Safety attachment ids', 'woocommerce-germanized' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
 			'context'     => array( 'view', 'edit' ),
 		);
 		$schema_properties['variations']['items']['properties']['min_age']                  = array(
@@ -715,22 +777,25 @@ class WC_GZD_REST_Products_Controller {
 			$data['country_specific_delivery_times'] = array_replace_recursive( $country_specific_delivery_times_current, $data['country_specific_delivery_times'] );
 		}
 
-		// Price Labels + Unit
+		// Taxonomies
 		$meta_data = array(
 			'sale_price_label'         => WC_germanized()->price_labels,
 			'sale_price_regular_label' => WC_germanized()->price_labels,
 			'unit'                     => WC_germanized()->units,
+			'manufacturer_slug'        => WC_germanized()->manufacturers,
 		);
 
 		foreach ( $meta_data as $meta => $taxonomy_obj ) {
-			$current = 0;
-			$getter  = "get_{$meta}";
+			$current      = 0;
+			$getter       = "get_{$meta}";
+			$request_key  = 'manufacturer_slug' === $meta ? 'manufacturer' : $meta;
+			$request_data = isset( $request[ $request_key ] ) ? $request[ $request_key ] : false;
 
 			if ( is_callable( array( $gzd_product, $getter ) ) ) {
 				$current = $gzd_product->$getter( 'edit' );
 			}
 
-			$term_data           = $this->get_term_data( isset( $request[ $meta ] ) ? $request[ $meta ] : false, $current );
+			$term_data           = $this->get_term_data( $request_data, $current );
 			$data[ '_' . $meta ] = '';
 
 			if ( ! empty( $term_data ) ) {
@@ -746,7 +811,6 @@ class WC_GZD_REST_Products_Controller {
 		$data['_unit_price_auto'] = $gzd_product->get_unit_price_auto();
 
 		if ( isset( $request['unit_price'] ) && is_array( $request['unit_price'] ) ) {
-
 			foreach ( $request['unit_price'] as $key => $val ) {
 				if ( isset( $data_saveable[ '_unit_' . $key ] ) ) {
 					$data[ '_unit_' . $key ] = sanitize_text_field( $val );
@@ -802,6 +866,19 @@ class WC_GZD_REST_Products_Controller {
 			}
 		} else {
 			$data['_warranty_attachment_id'] = $gzd_product->get_warranty_attachment_id();
+		}
+
+		/**
+		 * Do only remove warranty attachment id in case explicitly passed as empty value
+		 */
+		if ( isset( $request['safety_attachment_ids'] ) ) {
+			if ( empty( $request['safety_attachment_ids'] ) ) {
+				$data['_safety_attachment_ids'] = array();
+			} else {
+				$data['_safety_attachment_ids'] = array_filter( array_map( 'absint', (array) $request['safety_attachment_ids'] ) );
+			}
+		} else {
+			$data['_safety_attachment_ids'] = $gzd_product->get_safety_attachment_ids();
 		}
 
 		foreach ( array( 'free_shipping', 'service', 'differential_taxation', 'used_good', 'defective_copy', 'is_food', 'photovoltaic_system' ) as $bool_meta ) {
@@ -998,6 +1075,12 @@ class WC_GZD_REST_Products_Controller {
 		// Sale Labels
 		$data['sale_price_label']         = $this->prepare_term( WC_germanized()->price_labels->get_term_object( $gzd_product->get_sale_price_label( $context ) ) );
 		$data['sale_price_regular_label'] = $this->prepare_term( WC_germanized()->price_labels->get_term_object( $gzd_product->get_sale_price_regular_label( $context ) ) );
+
+		// Manufacturer
+		$data['manufacturer'] = $this->prepare_term( WC_germanized()->manufacturers->get_term_object( $gzd_product->get_manufacturer_slug( $context ) ) );
+
+		// Safety attachment ids
+		$data['safety_attachment_ids'] = $gzd_product->get_safety_attachment_ids( $context );
 
 		// Delivery Time
 		$data['delivery_time'] = $this->prepare_term( $gzd_product->get_default_delivery_time( $context ) );

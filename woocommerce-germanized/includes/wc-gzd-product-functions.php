@@ -67,7 +67,7 @@ function wc_gzd_get_gzd_product( $product ) {
 		return $product;
 	}
 
-	if ( ! $product ) {
+	if ( ! is_a( $product, 'WC_Product' ) ) {
 		return false;
 	}
 
@@ -353,12 +353,12 @@ function wc_gzd_get_valid_product_delivery_time_slugs( $maybe_slug, $allow_add_n
 	if ( is_array( $maybe_slug ) ) {
 		return array_filter(
 			array_map(
-				function( $maybe_slug ) use ( $allow_add_new ) {
+				function ( $maybe_slug ) use ( $allow_add_new ) {
 					return wc_gzd_get_valid_product_delivery_time_slugs( $maybe_slug, $allow_add_new );
 				},
 				$maybe_slug
 			),
-			function( $x ) {
+			function ( $x ) {
 				return false !== $x;
 			}
 		);

@@ -57,6 +57,10 @@ class Order {
 		return $this->order;
 	}
 
+	public function get_id() {
+		return $this->get_order()->get_id();
+	}
+
 	/**
 	 * @return WC_DateTime|null
 	 */
@@ -154,7 +158,7 @@ class Order {
 	}
 
 	public function supports_third_party_email_transmission() {
-		$supports_email_transmission = function_exists( 'wc_gzd_order_supports_parcel_delivery_reminder' ) ? wc_gzd_order_supports_parcel_delivery_reminder( $this->get_order() ) : 'yes' === $this->get_order()->get_meta( '_parcel_delivery_opted_in' );
+		$supports_email_transmission = 'yes' === $this->get_order()->get_meta( '_parcel_delivery_opted_in' );
 
 		/**
 		 * Filter to adjust whether the email address may be transmitted to third-parties, e.g.
@@ -333,49 +337,47 @@ class Order {
 							$errors->add( $code, $message );
 						}
 					}
-				} else {
-					if ( 0 === count( $packed_boxes ) ) {
+				} elseif ( 0 === count( $packed_boxes ) ) {
 						$errors->add( 404, sprintf( _x( 'Seems like none of your <a href="%1$s">packaging options</a> is available for this order.', 'shipments', 'woocommerce-germanized' ), Settings::get_settings_url( 'packaging' ) ) );
-					} else {
-						foreach ( $packed_boxes as $box ) {
-							$packaging      = $box->getBox();
-							$items          = $box->getItems();
-							$shipment_items = array();
+				} else {
+					foreach ( $packed_boxes as $box ) {
+						$packaging      = $box->getBox();
+						$items          = $box->getItems();
+						$shipment_items = array();
 
-							foreach ( $items as $item ) {
-								$order_item = $item->getItem();
+						foreach ( $items as $item ) {
+							$order_item = $item->getItem();
 
-								if ( ! isset( $shipment_items[ $order_item->get_id() ] ) ) {
-									$shipment_items[ $order_item->get_id() ] = 1;
-								} else {
-									$shipment_items[ $order_item->get_id() ]++;
-								}
+							if ( ! isset( $shipment_items[ $order_item->get_id() ] ) ) {
+								$shipment_items[ $order_item->get_id() ] = 1;
+							} else {
+								++$shipment_items[ $order_item->get_id() ];
+							}
+						}
+
+						$shipment = wc_gzd_create_shipment(
+							$this,
+							array(
+								'items' => $shipment_items,
+								'props' => array(
+									'packaging_id' => $packaging->get_id(),
+									'status'       => $default_status,
+								),
+							)
+						);
+
+						if ( ! is_wp_error( $shipment ) ) {
+							$this->add_shipment( $shipment );
+
+							$shipments_created[ $shipment->get_id() ] = $shipment;
+						} else {
+							foreach ( $shipments_created as $id => $shipment_created ) {
+								$shipment_created->delete( true );
+								$this->remove_shipment( $id );
 							}
 
-							$shipment = wc_gzd_create_shipment(
-								$this,
-								array(
-									'items' => $shipment_items,
-									'props' => array(
-										'packaging_id' => $packaging->get_id(),
-										'status'       => $default_status,
-									),
-								)
-							);
-
-							if ( ! is_wp_error( $shipment ) ) {
-								$this->add_shipment( $shipment );
-
-								$shipments_created[ $shipment->get_id() ] = $shipment;
-							} else {
-								foreach ( $shipments_created as $id => $shipment_created ) {
-									$shipment_created->delete( true );
-									$this->remove_shipment( $id );
-								}
-
-								foreach ( $shipment->get_error_messages() as $code => $message ) {
-									$errors->add( $code, $message );
-								}
+							foreach ( $shipment->get_error_messages() as $code => $message ) {
+								$errors->add( $code, $message );
 							}
 						}
 					}
@@ -588,7 +590,7 @@ class Order {
 				if ( $shipment->get_id() === $loop_shipment->get_id() ) {
 					break;
 				}
-				$number++;
+				++$number;
 			}
 		}
 

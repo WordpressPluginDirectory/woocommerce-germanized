@@ -202,9 +202,10 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 
 	public static function output( $loop, $variation_data, $variation ) {
 		$_product                  = wc_get_product( $variation );
-		$_parent                   = wc_get_product( $_product->get_parent_id() );
 		$gzd_product               = wc_gzd_get_product( $_product );
+		$_parent                   = wc_get_product( $_product->get_parent_id() );
 		$gzd_parent_product        = wc_gzd_get_product( $_parent );
+		$manufacturer              = $gzd_product->get_manufacturer( 'edit' );
 		$delivery_time             = $gzd_product->get_delivery_time( 'edit' );
 		$countries_left            = WC_Germanized_Meta_Box_Product_Data::get_available_delivery_time_countries();
 		$delivery_times            = $gzd_product->get_delivery_times( 'edit' );
@@ -251,7 +252,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 					'label'         => __( 'Product Units', 'woocommerce-germanized' ),
 					'data_type'     => 'decimal',
 					'value'         => $gzd_product->get_unit_product( 'edit' ),
-					'placeholder'   => wc_format_localized_decimal( $gzd_parent_product->get_unit_product( 'edit' ) ),
+					'placeholder'   => $gzd_parent_product ? wc_format_localized_decimal( $gzd_parent_product->get_unit_product( 'edit' ) ) : '',
 					'desc_tip'      => true,
 					'description'   => __( 'Number of units included per default product price. Example: 1000 ml.', 'woocommerce-germanized' ),
 				)
@@ -381,6 +382,44 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 			<?php endif; ?>
 		</div>
 
+		<div class="variable_product_safety">
+			<p class="wc-gzd-product-settings-subtitle">
+				<?php esc_html_e( 'Product safety', 'woocommerce-germanized' ); ?>
+			</p>
+
+			<p class="form-row form-row-full">
+				<label for="delivery_time"><?php esc_html_e( 'Manufacturer', 'woocommerce-germanized' ); ?></label>
+				<?php
+				WC_Germanized_Meta_Box_Product_Data::manufacturer_select_field(
+					array(
+						'name'        => "variable_manufacturer_slug[{$loop}]",
+						'id'          => "variable_manufacturer_slug_{$loop}",
+						'placeholder' => __( 'Same as parent', 'woocommerce-germanized' ),
+						'term'        => $manufacturer,
+						'style'       => 'width: 100%',
+					)
+				);
+				?>
+			</p>
+
+			<p class="form-row form-row-full">
+				<label><?php esc_html_e( 'Safety documents', 'woocommerce-germanized' ); ?></label>
+
+				<?php
+				WC_Germanized_Meta_Box_Product_Data::upload_field(
+					array(
+						'upload_default_label' => __( 'Same as parent', 'woocommerce-germanized' ),
+						'file_types'           => array( 'application/pdf', 'image' ),
+						'multiple'             => true,
+						'name'                 => 'variable_safety_attachment_ids[' . esc_attr( $loop ) . '][]',
+						'id'                   => 'variable_safety_attachment_ids_' . $loop,
+						'attachment_ids'       => $gzd_product->get_safety_attachment_ids( 'edit' ),
+					)
+				);
+				?>
+			</p>
+		</div>
+
 		<div class="variable_additional_fields">
 			<p class="wc-gzd-product-settings-subtitle">
 				<?php esc_html_e( 'Additional Fields', 'woocommerce-germanized' ); ?>
@@ -411,7 +450,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 					'name'          => "variable_gtin[{$loop}]",
 					'label'         => __( 'GTIN', 'woocommerce-germanized' ),
 					'data_type'     => 'text',
-					'placeholder'   => $gzd_parent_product->get_gtin( 'edit' ),
+					'placeholder'   => $gzd_parent_product ? $gzd_parent_product->get_gtin( 'edit' ) : '',
 					'value'         => $gzd_product->get_gtin( 'edit' ),
 					'desc_tip'      => true,
 					'description'   => __( 'Your product\'s Global Trade Item Number that allows your products to be identified worldwide.', 'woocommerce-germanized' ),
@@ -425,7 +464,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 					'name'          => "variable_mpn[{$loop}]",
 					'label'         => __( 'MPN', 'woocommerce-germanized' ),
 					'data_type'     => 'text',
-					'placeholder'   => $gzd_parent_product->get_mpn( 'edit' ),
+					'placeholder'   => $gzd_parent_product ? $gzd_parent_product->get_mpn( 'edit' ) : '',
 					'value'         => $gzd_product->get_mpn( 'edit' ),
 					'desc_tip'      => true,
 					'description'   => __( 'Your product\'s Manufacturer Part Number.', 'woocommerce-germanized' ),
@@ -436,9 +475,19 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 			<div class="variable_warranty_attachment">
 				<p class="form-row form-row-full wc-gzd-warranty-upload-wrapper">
 					<label><?php esc_html_e( 'Warranty (PDF)', 'woocommerce-germanized' ); ?></label>
-					<a href="#" class="button upload_warranty_button" data-default-label="<?php echo esc_html__( 'Same as parent', 'woocommerce-germanized' ); ?>" data-choose="<?php esc_attr_e( 'Choose file', 'woocommerce-germanized' ); ?>" data-update="<?php esc_attr_e( 'Select warranty file', 'woocommerce-germanized' ); ?>"><?php echo ( $gzd_product->has_warranty( 'edit' ) ? esc_html( $gzd_product->get_warranty_filename() ) : esc_html__( 'Same as parent', 'woocommerce-germanized' ) ); ?></a>
-					<input type="hidden" name="variable_warranty_attachment_id[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ( $gzd_product->has_warranty( 'edit' ) ? esc_html( $gzd_product->get_warranty_attachment_id( 'edit' ) ) : '' ); ?>" class="wc-gzd-warranty-attachment" />
-					<a href="#" class="wc-gzd-warranty-delete <?php echo ( ! $gzd_product->has_warranty( 'edit' ) ? 'file-missing' : '' ); ?>"><?php esc_html_e( 'Delete', 'woocommerce-germanized' ); ?></a>
+
+					<?php
+					WC_Germanized_Meta_Box_Product_Data::upload_field(
+						array(
+							'upload_default_label' => __( 'Same as parent', 'woocommerce-germanized' ),
+							'file_types'           => array( 'application/pdf' ),
+							'name'                 => 'variable_warranty_attachment_id[' . esc_attr( $loop ) . ']',
+							'id'                   => 'variable_warranty_attachment_id_' . $loop,
+							'attachment_ids'       => $gzd_product->get_warranty_attachment_id( 'edit' ),
+							'upload_update'        => __( 'Select warranty file', 'woocommerce-germanized' ),
+						)
+					);
+					?>
 				</p>
 			</div>
 
@@ -475,7 +524,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 						'label'         => __( 'Deposit Type', 'woocommerce-germanized' ),
 						'options'       => array( '-1' => __( 'Select Deposit Type', 'woocommerce-germanized' ) ) + WC_germanized()->deposit_types->get_deposit_types(),
 						'desc_tip'      => true,
-						'value'         => $gzd_product->get_deposit_type( 'edit' ) ? $gzd_product->get_deposit_type( 'edit' ) : $gzd_parent_product->get_deposit_type(),
+						'value'         => $gzd_product->get_deposit_type( 'edit' ) ? $gzd_product->get_deposit_type( 'edit' ) : ( $gzd_parent_product ? $gzd_parent_product->get_deposit_type() : '' ),
 						'description'   => __( 'In case this product is reusable and has deposits, select the deposit type.', 'woocommerce-germanized' ),
 					)
 				);
@@ -487,7 +536,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 						'name'              => "variable_deposit_quantity[{$loop}]",
 						'label'             => __( 'Deposit Quantity', 'woocommerce-germanized' ),
 						'value'             => $gzd_product->get_deposit_quantity( 'edit' ),
-						'placeholder'       => $gzd_parent_product->get_deposit_quantity() ? $gzd_parent_product->get_deposit_quantity() : 1,
+						'placeholder'       => $gzd_parent_product && $gzd_parent_product->get_deposit_quantity() ? $gzd_parent_product->get_deposit_quantity() : 1,
 						'data_type'         => 'number',
 						'custom_attributes' => array( 'min' => 1 ),
 						'description'       => __( 'Number of units included for deposit purposes, e.g. 6 bottles.', 'woocommerce-germanized' ),
@@ -517,6 +566,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 			'_unit_price_auto'                          => '',
 			'_unit_price_regular'                       => '',
 			'_deposit_type'                             => '',
+			'_manufacturer_slug'                        => '',
 			'_deposit_quantity'                         => '',
 			'_sale_price_label'                         => '',
 			'_sale_price_regular_label'                 => '',
@@ -534,6 +584,7 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 			'_min_age'                                  => '',
 			'_gtin'                                     => '',
 			'_mpn'                                      => '',
+			'_safety_attachment_ids'                    => '',
 			'_warranty_attachment_id'                   => '',
 			'_nutrient_ids'                             => '',
 			'_nutrient_reference_value'                 => '',
@@ -561,9 +612,9 @@ class WC_Germanized_Meta_Box_Product_Data_Variable {
 		/**
 		 * Parent unit data is passed as global (non-variation-level) data.
 		 */
-		$data['_parent_unit_product'] = isset( $_POST['_unit_product'] ) ? wc_clean( wp_unslash( $_POST['_unit_product'] ) ) : $gzd_parent_product->get_unit_product( 'edit' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$data['_parent_unit']         = isset( $_POST['_unit'] ) ? wc_clean( wp_unslash( $_POST['_unit'] ) ) : $gzd_parent_product->get_unit( 'edit' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$data['_parent_unit_base']    = isset( $_POST['_unit_base'] ) ? wc_clean( wp_unslash( $_POST['_unit_base'] ) ) : $gzd_parent_product->get_unit_base( 'edit' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$data['_parent_unit_product'] = isset( $_POST['_unit_product'] ) ? wc_clean( wp_unslash( $_POST['_unit_product'] ) ) : ( $gzd_parent_product ? $gzd_parent_product->get_unit_product( 'edit' ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$data['_parent_unit']         = isset( $_POST['_unit'] ) ? wc_clean( wp_unslash( $_POST['_unit'] ) ) : ( $gzd_parent_product ? $gzd_parent_product->get_unit( 'edit' ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$data['_parent_unit_base']    = isset( $_POST['_unit_base'] ) ? wc_clean( wp_unslash( $_POST['_unit_base'] ) ) : ( $gzd_parent_product ? $gzd_parent_product->get_unit_base( 'edit' ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Check if parent has unit_base + unit otherwise ignore data
 		if ( empty( $data['_parent_unit'] ) || empty( $data['_parent_unit_base'] ) ) {

@@ -18,7 +18,7 @@ class Package {
 	 *
 	 * @var string
 	 */
-	const VERSION = '3.5.2';
+	const VERSION = '4.0.0';
 
 	public static $upload_dir_suffix = '';
 
@@ -45,9 +45,7 @@ class Package {
 		add_filter( 'woocommerce_data_stores', array( __CLASS__, 'register_data_stores' ), 10, 1 );
 		add_action( 'after_setup_theme', array( __CLASS__, 'include_template_functions' ), 11 );
 
-		// Filter email templates
-		add_filter( 'woocommerce_gzd_default_plugin_template', array( __CLASS__, 'filter_templates' ), 10, 3 );
-
+		add_filter( 'woocommerce_locate_template', array( __CLASS__, 'filter_templates' ), 50, 3 );
 		add_filter( 'woocommerce_get_query_vars', array( __CLASS__, 'register_endpoints' ), 10, 1 );
 
 		if ( ! did_action( 'woocommerce_loaded' ) ) {
@@ -200,9 +198,11 @@ class Package {
 	}
 
 	public static function is_integration() {
-		$gzd_installed = class_exists( 'WooCommerce_Germanized' );
+		return class_exists( 'WooCommerce_Germanized' );
+	}
 
-		return $gzd_installed;
+	public static function is_pro() {
+		return apply_filters( 'woocommerce_gzd_shipments_is_pro', false );
 	}
 
 	/**
@@ -446,6 +446,10 @@ class Package {
 		return $query_vars;
 	}
 
+	public static function deactivate() {
+		Install::deactivate();
+	}
+
 	public static function install() {
 		self::init();
 
@@ -656,13 +660,47 @@ class Package {
 		include_once self::get_path() . '/includes/wc-gzd-shipments-template-functions.php';
 	}
 
-	public static function filter_templates( $path, $template_name ) {
+	/**
+	 * Return the path to the package.
+	 *
+	 * @return string
+	 */
+	public static function get_template_path() {
+		return apply_filters( 'woocommerce_gzd_shipments_template_path', 'shipments/' );
+	}
 
+	/**
+	 * Filter WooCommerce Templates to look into /templates before looking within theme folder
+	 *
+	 * @param string $template
+	 * @param string $template_name
+	 * @param string $template_path
+	 *
+	 * @return string
+	 */
+	public static function filter_templates( $template, $template_name, $template_path ) {
 		if ( file_exists( self::get_path() . '/templates/' . $template_name ) ) {
-			$path = self::get_path() . '/templates/' . $template_name;
+			$template_path = self::get_template_path();
+
+			// Check for Theme overrides
+			$theme_template = locate_template(
+				apply_filters(
+					'woocommerce_gzd_shipments_locate_theme_template_locations',
+					array(
+						trailingslashit( $template_path ) . $template_name,
+					),
+					$template_name
+				)
+			);
+
+			if ( ! $theme_template ) {
+				$template = self::get_path() . '/templates/' . $template_name;
+			} else {
+				$template = $theme_template;
+			}
 		}
 
-		return $path;
+		return $template;
 	}
 
 	/**
@@ -749,10 +787,10 @@ class Package {
 		return trailingslashit( $assets_url ) . $script_or_style;
 	}
 
-	public static function get_setting( $name, $default = false ) {
+	public static function get_setting( $name, $default_value = false ) {
 		$option_name = "woocommerce_gzd_shipments_{$name}";
 
-		return get_option( $option_name, $default );
+		return get_option( $option_name, $default_value );
 	}
 
 	public static function get_store_address_country() {

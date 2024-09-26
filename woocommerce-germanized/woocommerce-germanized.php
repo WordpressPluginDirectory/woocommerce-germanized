@@ -3,7 +3,7 @@
  * Plugin Name: Germanized for WooCommerce
  * Plugin URI: https://www.vendidero.de/woocommerce-germanized
  * Description: Germanized for WooCommerce extends WooCommerce to become a legally compliant store in the german market.
- * Version: 3.17.4
+ * Version: 3.18.1
  * Author: vendidero
  * Author URI: https://vendidero.de
  * Requires at least: 5.4
@@ -69,7 +69,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '3.17.4';
+		public $version = '3.18.1';
 
 		/**
 		 * @var WooCommerce_Germanized $instance of the plugin
@@ -90,6 +90,11 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		 * @var WC_GZD_Delivery_Times|null
 		 */
 		public $delivery_times = null;
+
+		/**
+		 * @var WC_GZD_Manufacturers|null
+		 */
+		public $manufacturers = null;
 
 		/**
 		 * @var WC_GZD_Deposit_Types|null
@@ -185,7 +190,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			if ( ! WC_GZD_Dependencies::is_loadable() ) {
 				add_action(
 					'admin_notices',
-					function() {
+					function () {
 						if ( current_user_can( 'activate_plugins' ) ) {
 							include_once WC_GERMANIZED_ABSPATH . 'includes/admin/views/html-notice-dependencies.php';
 						}
@@ -237,6 +242,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			$this->units           = new WC_GZD_Units();
 			$this->price_labels    = new WC_GZD_Price_Labels();
 			$this->delivery_times  = new WC_GZD_Delivery_Times();
+			$this->manufacturers   = new WC_GZD_Manufacturers();
 			$this->deposit_types   = new WC_GZD_Deposit_Types();
 			$this->nutrients       = new WC_GZD_Nutrients();
 			$this->allergenic      = new WC_GZD_Allergenic();
@@ -258,6 +264,13 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			}
 
 			\Vendidero\Germanized\PluginsHelper::init();
+
+			add_action(
+				'init1',
+				function () {
+					$product = wc_get_product( 4871 );
+				}
+			);
 		}
 
 		public function declare_feature_compatibility() {
@@ -396,39 +409,37 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		/**
 		 * Auto-load WC_Germanized classes on demand to reduce memory consumption.
 		 *
-		 * @param mixed $class
+		 * @param mixed $class_to_load
 		 *
 		 * @return void
 		 */
-		public function autoload( $class ) {
-			$original_class = $class;
-			$class          = strtolower( $class );
+		public function autoload( $class_to_load ) {
+			$original_class = $class_to_load;
+			$class_to_load  = strtolower( $class_to_load );
 
 			$matcher = array(
 				'wc_gzd_',
 			);
 
-			$is_match = ( str_replace( $matcher, '', $class ) !== $class );
+			$is_match = ( str_replace( $matcher, '', $class_to_load ) !== $class_to_load );
 
 			if ( ! $is_match ) {
 				return;
 			}
 
 			$path = $this->plugin_path() . '/includes/';
-			$file = 'class-' . str_replace( '_', '-', $class ) . '.php';
+			$file = 'class-' . str_replace( '_', '-', $class_to_load ) . '.php';
 
-			if ( strpos( $class, 'wc_gzd_admin' ) !== false ) {
+			if ( strpos( $class_to_load, 'wc_gzd_admin' ) !== false ) {
 				$path = $this->plugin_path() . '/includes/admin/';
-			} elseif ( strpos( $class, 'wc_gzd_gateway_' ) !== false ) {
-				$path = $this->plugin_path() . '/includes/gateways/' . substr( str_replace( '_', '-', $class ), 15 ) . '/';
-			} elseif ( strpos( $class, 'wc_gzd_compatibility' ) !== false ) {
+			} elseif ( strpos( $class_to_load, 'wc_gzd_gateway_' ) !== false ) {
+				$path = $this->plugin_path() . '/includes/gateways/' . substr( str_replace( '_', '-', $class_to_load ), 15 ) . '/';
+			} elseif ( strpos( $class_to_load, 'wc_gzd_compatibility' ) !== false ) {
 				$path = $this->plugin_path() . '/includes/compatibility/';
 			}
 
 			if ( $path && is_readable( $path . $file ) ) {
 				include_once $path . $file;
-
-				return;
 			}
 		}
 
@@ -525,6 +536,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 				include_once WC_GERMANIZED_ABSPATH . 'includes/admin/settings/class-wc-gzd-settings-pointers.php';
 				include_once WC_GERMANIZED_ABSPATH . 'includes/admin/class-wc-gzd-admin-product-categories.php';
 				include_once WC_GERMANIZED_ABSPATH . 'includes/admin/class-wc-gzd-admin-deposit-types.php';
+				include_once WC_GERMANIZED_ABSPATH . 'includes/admin/class-wc-gzd-admin-manufacturers.php';
 			}
 
 			if ( is_admin() || defined( 'DOING_CRON' ) ) {
@@ -556,7 +568,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 				} else {
 					add_action(
 						'woocommerce_loaded',
-						function() {
+						function () {
 							if ( $this->is_pro() ) {
 								if ( ! did_action( 'woocommerce_gzdp_loaded' ) ) {
 									add_action( 'woocommerce_gzdp_loaded', array( $this, 'frontend_includes' ), 5 );
@@ -910,7 +922,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			$locale = apply_filters( 'plugin_locale', $locale, 'woocommerce-germanized' );
 
 			load_textdomain( 'woocommerce-germanized', trailingslashit( WP_LANG_DIR ) . 'woocommerce-germanized/woocommerce-germanized-' . $locale . '.mo' );
-			load_plugin_textdomain( 'woocommerce-germanized', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages/' );
+			load_plugin_textdomain( 'woocommerce-germanized', false, plugin_basename( __DIR__ ) . '/i18n/languages/' );
 		}
 
 		/**
@@ -1545,7 +1557,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			$gateways[] = 'WC_GZD_Gateway_Invoice';
 
 			return $gateways;
-
 		}
 	}
 

@@ -14,7 +14,7 @@ class PreferredNeighbour extends Service {
 			'id'                 => 'PreferredNeighbour',
 			'label'              => _x( 'Neighbor', 'dhl', 'woocommerce-germanized' ),
 			'description'        => _x( 'Enable delivery to a neighbor.', 'dhl', 'woocommerce-germanized' ),
-			'long_description'   => '<div class="wc-gzd-additional-desc">' . _x( 'Enabling this option will display options for the user to deliver to their preferred neighbor during the checkout.', 'dhl', 'woocommerce-germanized' ) . '</div>',
+			'long_description'   => '<div class="wc-gzd-shipments-additional-desc">' . _x( 'Enabling this option will display options for the user to deliver to their preferred neighbor during the checkout.', 'dhl', 'woocommerce-germanized' ) . '</div>',
 			'setting_id'         => 'PreferredNeighbour_enable',
 			'products'           => array( 'V01PAK', 'V62WP' ),
 			'countries'          => array( 'DE' ),

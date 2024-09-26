@@ -99,8 +99,6 @@ class WC_GZD_Admin {
 
 		add_action( 'woocommerce_oss_enabled_oss_procedure', array( $this, 'oss_enable_hide_tax_percentage' ), 10 );
 
-		add_filter( 'woocommerce_gzd_shipment_admin_provider_list', array( $this, 'maybe_register_shipping_providers' ), 10 );
-
 		$this->wizard = require 'class-wc-gzd-admin-setup-wizard.php';
 	}
 
@@ -186,42 +184,6 @@ class WC_GZD_Admin {
 		} else {
 			update_option( 'woocommerce_gzd_disable_food_options', 'yes' );
 		}
-	}
-
-	/**
-	 * @param \Vendidero\Germanized\Shipments\Interfaces\ShippingProvider $providers
-	 */
-	public function maybe_register_shipping_providers( $providers ) {
-		if ( ! WC_germanized()->is_pro() ) {
-			if ( $this->is_dpd_available() ) {
-				$dpd               = new WC_GZD_Admin_Provider_DPD();
-				$providers['_dpd'] = $dpd;
-			}
-
-			if ( $this->is_gls_available() ) {
-				$gls               = new WC_GZD_Admin_Provider_GLS();
-				$providers['_gls'] = $gls;
-			}
-
-			if ( $this->is_hermes_available() ) {
-				$hermes               = new WC_GZD_Admin_Provider_Hermes();
-				$providers['_hermes'] = $hermes;
-			}
-		}
-
-		return $providers;
-	}
-
-	public function is_gls_available() {
-		return in_array( \Vendidero\Germanized\Shipments\Package::get_base_country(), array( 'DE', 'AT', 'CH', 'BE', 'LU', 'FR', 'IE', 'ES' ), true );
-	}
-
-	public function is_hermes_available() {
-		return in_array( \Vendidero\Germanized\Shipments\Package::get_base_country(), array( 'DE' ), true );
-	}
-
-	public function is_dpd_available() {
-		return in_array( \Vendidero\Germanized\Shipments\Package::get_base_country(), array( 'DE', 'AT' ), true );
 	}
 
 	public function oss_enable_hide_tax_percentage() {
@@ -842,6 +804,14 @@ class WC_GZD_Admin {
 		);
 
 		wp_localize_script(
+			'wc-gzd-admin-product',
+			'wc_gzd_admin_product_params',
+			array(
+				'i18n_remove_attachment' => __( 'Remove', 'woocommerce-germanized' ),
+			)
+		);
+
+		wp_localize_script(
 			'wc-gzd-admin-product-variations',
 			'wc_gzd_admin_product_variations_params',
 			array(
@@ -1278,13 +1248,12 @@ class WC_GZD_Admin {
 		}
 
 		return array_filter( $settings );
-
 	}
 
 	public function insert_setting_after( $settings, $id, $insert = array(), $type = '' ) {
 		$key = $this->get_setting_key_by_id( $settings, $id, $type );
 		if ( is_numeric( $key ) ) {
-			$key ++;
+			++$key;
 			$settings = array_merge( array_merge( array_slice( $settings, 0, $key, true ), $insert ), array_slice( $settings, $key, count( $settings ) - 1, true ) );
 		} else {
 			$settings += $insert;
@@ -1292,7 +1261,6 @@ class WC_GZD_Admin {
 
 		return $settings;
 	}
-
 }
 
 WC_GZD_Admin::instance();

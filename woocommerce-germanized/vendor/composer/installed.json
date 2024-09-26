@@ -2,36 +2,37 @@
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "2.10.1",
-            "version_normalized": "2.10.1.0",
+            "version": "v2.11.18",
+            "version_normalized": "2.11.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "20393c4677765c3e737dcb5aee7a3f7b90dce4b3"
+                "reference": "53cbf0528fa6931c4fa6465bccd37514f9eda720"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/20393c4677765c3e737dcb5aee7a3f7b90dce4b3",
-                "reference": "20393c4677765c3e737dcb5aee7a3f7b90dce4b3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/53cbf0528fa6931c4fa6465bccd37514f9eda720",
+                "reference": "53cbf0528fa6931c4fa6465bccd37514f9eda720",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.1",
-                "yoast/phpunit-polyfills": "0.2.0"
+                "automattic/jetpack-changelogger": "^3.3.2",
+                "yoast/phpunit-polyfills": "1.0.4"
             },
-            "time": "2021-03-30T15:15:59+00:00",
+            "time": "2023-03-29T12:51:59+00:00",
             "type": "composer-plugin",
             "extra": {
+                "autotagger": true,
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
                 "mirror-repo": "Automattic/jetpack-autoloader",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.10.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 }
             },
             "installation-source": "dist",
@@ -49,7 +50,7 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-autoloader/tree/2.10.1"
+                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v2.11.18"
             },
             "install-path": "../automattic/jetpack-autoloader"
         },
@@ -381,38 +382,40 @@
         },
         {
             "name": "dvdoug/boxpacker",
-            "version": "3.11.0",
-            "version_normalized": "3.11.0.0",
+            "version": "3.12.1",
+            "version_normalized": "3.12.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dvdoug/BoxPacker.git",
-                "reference": "0f93e476ad19cb01c7d89414df66df538362f8c2"
+                "reference": "04720e946770045b00ea796ba8941240b66cba0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dvdoug/BoxPacker/zipball/0f93e476ad19cb01c7d89414df66df538362f8c2",
-                "reference": "0f93e476ad19cb01c7d89414df66df538362f8c2",
+                "url": "https://api.github.com/repos/dvdoug/BoxPacker/zipball/04720e946770045b00ea796ba8941240b66cba0b",
+                "reference": "04720e946770045b00ea796ba8941240b66cba0b",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "^7.1||^8.0",
+                "php": "^7.4||^8.0",
                 "psr/log": "^1.0||^2.0||^3.0"
             },
             "require-dev": {
-                "behat/behat": "^3.7",
-                "dvdoug/behat-code-coverage": "^5.0.1",
-                "friendsofphp/php-cs-fixer": "^3.7",
-                "monolog/monolog": "^1.0||^2.0",
-                "phpunit/phpunit": "^7.5.20||^8.5.21||^9.5.8"
+                "behat/behat": "^3.13",
+                "dvdoug/behat-code-coverage": "^5.3.1",
+                "friendsofphp/php-cs-fixer": "^3.22.0",
+                "monolog/monolog": "^2.9.1||^3.4",
+                "phpunit/phpunit": "^9.6.10||^10.2"
             },
-            "time": "2023-02-04T17:55:13+00:00",
+            "time": "2023-12-02T17:01:46+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "DVDoug\\BoxPacker\\": "src/",
-                    "DVDoug\\BoxPacker\\Test\\": "tests/Test"
+                    "DVDoug\\BoxPacker\\": [
+                        "src/",
+                        "tests/"
+                    ]
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -426,7 +429,7 @@
                 }
             ],
             "description": "An implementation of the 3D (actually 4D) bin packing/knapsack problem (aka creating parcels by putting items into boxes)",
-            "homepage": "http://boxpacker.io/",
+            "homepage": "https://boxpacker.io/",
             "keywords": [
                 "bin packing",
                 "binpacking",
@@ -443,7 +446,7 @@
             ],
             "support": {
                 "issues": "https://github.com/dvdoug/BoxPacker/issues",
-                "source": "https://github.com/dvdoug/BoxPacker/tree/3.11.0"
+                "source": "https://github.com/dvdoug/BoxPacker/tree/3.12.1"
             },
             "funding": [
                 {
@@ -711,17 +714,17 @@
         },
         {
             "name": "setasign/fpdi",
-            "version": "v2.6.0",
-            "version_normalized": "2.6.0.0",
+            "version": "v2.6.1",
+            "version_normalized": "2.6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Setasign/FPDI.git",
-                "reference": "a6db878129ec6c7e141316ee71872923e7f1b7ad"
+                "reference": "09a816004fcee9ed3405bd164147e3fdbb79a56f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/a6db878129ec6c7e141316ee71872923e7f1b7ad",
-                "reference": "a6db878129ec6c7e141316ee71872923e7f1b7ad",
+                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/09a816004fcee9ed3405bd164147e3fdbb79a56f",
+                "reference": "09a816004fcee9ed3405bd164147e3fdbb79a56f",
                 "shasum": ""
             },
             "require": {
@@ -741,7 +744,7 @@
             "suggest": {
                 "setasign/fpdf": "FPDI will extend this class but as it is also possible to use TCPDF or tFPDF as an alternative. There's no fixed dependency configured."
             },
-            "time": "2023-12-11T16:03:32+00:00",
+            "time": "2024-09-02T10:17:15+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -774,7 +777,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Setasign/FPDI/issues",
-                "source": "https://github.com/Setasign/FPDI/tree/v2.6.0"
+                "source": "https://github.com/Setasign/FPDI/tree/v2.6.1"
             },
             "funding": [
                 {
@@ -786,30 +789,28 @@
         },
         {
             "name": "vendidero/woocommerce-eu-tax-helper",
-            "version": "2.0.4",
-            "version_normalized": "2.0.4.0",
+            "version": "2.0.5",
+            "version_normalized": "2.0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vendidero/woocommerce-eu-tax-helper.git",
-                "reference": "f965cc34b971c9f5c0a9efd2c5606623f0dc5757"
+                "reference": "75d53618e742125bcaa91bf429590f6091a31183"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vendidero/woocommerce-eu-tax-helper/zipball/f965cc34b971c9f5c0a9efd2c5606623f0dc5757",
-                "reference": "f965cc34b971c9f5c0a9efd2c5606623f0dc5757",
+                "url": "https://api.github.com/repos/vendidero/woocommerce-eu-tax-helper/zipball/75d53618e742125bcaa91bf429590f6091a31183",
+                "reference": "75d53618e742125bcaa91bf429590f6091a31183",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-autoloader": "^2.6.0",
+                "automattic/jetpack-autoloader": "2.11.18",
                 "composer/installers": "^1.9.0"
             },
             "require-dev": {
                 "myclabs/deep-copy": "^1.7.0",
-                "phpunit/phpunit": "7.5.14",
-                "woocommerce/woocommerce-sniffs": "^0.1.3",
-                "yoast/phpunit-polyfills": "^1.0"
+                "woocommerce/woocommerce-sniffs": "^1.0.0"
             },
-            "time": "2024-05-23T12:14:54+00:00",
+            "time": "2024-09-25T09:13:19+00:00",
             "type": "wordpress-plugin",
             "installation-source": "dist",
             "autoload": {
@@ -837,37 +838,36 @@
             "description": "EU tax helper for WooCommerce",
             "homepage": "https://vendidero.de/",
             "support": {
-                "source": "https://github.com/vendidero/woocommerce-eu-tax-helper/tree/v2.0.4",
+                "source": "https://github.com/vendidero/woocommerce-eu-tax-helper/tree/v2.0.5",
                 "issues": "https://github.com/vendidero/woocommerce-eu-tax-helper/issues"
             },
             "install-path": "../../packages/woocommerce-eu-tax-helper"
         },
         {
             "name": "vendidero/woocommerce-germanized-dhl",
-            "version": "3.2.0",
-            "version_normalized": "3.2.0.0",
+            "version": "3.3.0",
+            "version_normalized": "3.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vendidero/woocommerce-germanized-dhl.git",
-                "reference": "7498a59eb7072de096810a59aa86e7f6a246a27b"
+                "reference": "e583d636729b48de4bfd5d7c779b17b275179cfb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vendidero/woocommerce-germanized-dhl/zipball/7498a59eb7072de096810a59aa86e7f6a246a27b",
-                "reference": "7498a59eb7072de096810a59aa86e7f6a246a27b",
+                "url": "https://api.github.com/repos/vendidero/woocommerce-germanized-dhl/zipball/e583d636729b48de4bfd5d7c779b17b275179cfb",
+                "reference": "e583d636729b48de4bfd5d7c779b17b275179cfb",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-autoloader": "^2.6.0",
+                "automattic/jetpack-autoloader": "2.11.18",
                 "baltpeter/internetmarke-php": "^0.5.0",
                 "composer/installers": "^1.9.0",
                 "php": ">=5.6|>=7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "7.5.14",
-                "woocommerce/woocommerce-sniffs": "^0.1.3"
+                "woocommerce/woocommerce-sniffs": "^1.0.0"
             },
-            "time": "2024-08-30T12:21:46+00:00",
+            "time": "2024-09-25T11:14:46+00:00",
             "type": "wordpress-plugin",
             "installation-source": "dist",
             "autoload": {
@@ -900,38 +900,38 @@
             "description": "The Germanized DHL implementation.",
             "homepage": "https://github.com/vendidero/woocommerce-germanized-dhl",
             "support": {
-                "source": "https://github.com/vendidero/woocommerce-germanized-dhl/tree/v3.2.0",
+                "source": "https://github.com/vendidero/woocommerce-germanized-dhl/tree/v3.3.0",
                 "issues": "https://github.com/vendidero/woocommerce-germanized-dhl/issues"
             },
             "install-path": "../../packages/woocommerce-germanized-dhl"
         },
         {
             "name": "vendidero/woocommerce-germanized-shipments",
-            "version": "3.5.2",
-            "version_normalized": "3.5.2.0",
+            "version": "4.0.0",
+            "version_normalized": "4.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vendidero/woocommerce-germanized-shipments.git",
-                "reference": "66245ca83dd7c76568e75ecc944ba867b3ae79e9"
+                "reference": "66bb4dbe113a033286f576c7d277c25c7f8838a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vendidero/woocommerce-germanized-shipments/zipball/66245ca83dd7c76568e75ecc944ba867b3ae79e9",
-                "reference": "66245ca83dd7c76568e75ecc944ba867b3ae79e9",
+                "url": "https://api.github.com/repos/vendidero/woocommerce-germanized-shipments/zipball/66bb4dbe113a033286f576c7d277c25c7f8838a3",
+                "reference": "66bb4dbe113a033286f576c7d277c25c7f8838a3",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-autoloader": "^2.0.0",
+                "automattic/jetpack-autoloader": "2.11.18",
                 "dvdoug/boxpacker": "^3.9.0",
                 "setasign/fpdf": "^1.8.2",
                 "setasign/fpdi": "^2.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "7.5.14",
-                "woocommerce/woocommerce-sniffs": "^0.1.3",
-                "yoast/phpunit-polyfills": "^1.1.0"
+                "phpunit/phpunit": "^9.0.0",
+                "woocommerce/woocommerce-sniffs": "^1.0.0",
+                "yoast/phpunit-polyfills": "^3.0"
             },
-            "time": "2024-08-30T11:14:30+00:00",
+            "time": "2024-09-25T14:27:29+00:00",
             "type": "wordpress-plugin",
             "installation-source": "dist",
             "autoload": {
@@ -962,7 +962,7 @@
             "description": "The Germanized Shipments implementation.",
             "homepage": "https://github.com/vendidero/woocommerce-germanized-shipments",
             "support": {
-                "source": "https://github.com/vendidero/woocommerce-germanized-shipments/tree/v3.5.2",
+                "source": "https://github.com/vendidero/woocommerce-germanized-shipments/tree/v4.0.0",
                 "issues": "https://github.com/vendidero/woocommerce-germanized-shipments/issues"
             },
             "install-path": "../../packages/woocommerce-germanized-shipments"

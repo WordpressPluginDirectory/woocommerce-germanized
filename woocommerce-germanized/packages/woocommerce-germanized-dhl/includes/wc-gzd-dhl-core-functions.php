@@ -608,34 +608,21 @@ function wc_gzd_dhl_get_billing_number( $product, $args = array() ) {
 		$account_base         = Package::get_setting( 'account_number' );
 
 		if ( Package::is_debug_mode() ) {
-			if ( 'dhl.com' === $args['api_type'] ) {
-				$account_base         = '3333333333';
-				$participation_number = '01';
+			$account_base         = '3333333333';
+			$participation_number = '01';
+
+			if ( $has_gogreen ) {
+				$participation_number = '02';
+			}
+
+			if ( 'V01PAK' === $product ) {
+				$participation_number = '02';
 
 				if ( $has_gogreen ) {
-					$participation_number = '02';
+					$participation_number = '03';
 				}
-
-				if ( 'V01PAK' === $product ) {
-					$participation_number = '02';
-
-					if ( $has_gogreen ) {
-						$participation_number = '03';
-					}
-				} elseif ( 'V66WPI' === $product && $has_gogreen ) {
-					$participation_number = '04';
-				}
-			} else {
-				$account_base         = '2222222222';
-				$participation_number = '01';
-
-				if ( 'V01PAK' === $product ) {
-					$participation_number = '05';
-
-					if ( $has_gogreen ) {
-						$participation_number = '04';
-					}
-				}
+			} elseif ( 'V66WPI' === $product && $has_gogreen ) {
+				$participation_number = '04';
 			}
 		}
 
@@ -648,12 +635,12 @@ function wc_gzd_dhl_get_billing_number( $product, $args = array() ) {
 		$account_number = $account_base . $product_number . $participation_number;
 
 		if ( strlen( $account_number ) !== 14 ) {
-			throw new Exception( sprintf( _x( 'Either your customer number or the participation number for <strong>%1$s</strong> is missing. Please validate your <a href="%2$s">settings</a> and try again.', 'dhl', 'woocommerce-germanized' ), esc_html( $provider->get_product( $product ) ? $provider->get_product( $product )->get_label() : $product ), esc_url( admin_url( 'admin.php?page=wc-settings&tab=germanized-shipping_provider&provider=dhl' ) ) ) );
+			throw new Exception( wp_kses_post( sprintf( _x( 'Either your customer number or the participation number for <strong>%1$s</strong> is missing. Please validate your <a href="%2$s">settings</a> and try again.', 'dhl', 'woocommerce-germanized' ), esc_html( $provider->get_product( $product ) ? $provider->get_product( $product )->get_label() : $product ), esc_url( Package::get_dhl_shipping_provider()->get_edit_link() ) ) ) );
 		}
 
 		return $account_number;
 	} else {
-		throw new Exception( _x( 'Could not create billing number, participation number is missing.', 'dhl', 'woocommerce-germanized' ) );
+		throw new Exception( esc_html_x( 'Could not create billing number, participation number is missing.', 'dhl', 'woocommerce-germanized' ) );
 	}
 }
 

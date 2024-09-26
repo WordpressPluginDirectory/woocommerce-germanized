@@ -1,24 +1,26 @@
-window.germanized = window.germanized || {};
-window.germanized.admin = window.germanized.admin || {};
+window.shipments = window.shipments || {};
+window.shipments.admin = window.shipments.admin || {};
 
-( function( $, admin ) {
+( function( $, shipments ) {
 
     /**
      * Core
      */
-    admin.shipping_providers = {
+    shipments.admin.shipping_providers = {
 
         params: {},
         $wrapper: '',
 
         init: function() {
-            var self      = germanized.admin.shipping_providers;
-            self.params   = wc_gzd_admin_shipping_providers_params;
+            var self      = shipments.admin.shipping_providers;
+            self.params   = wc_gzd_shipments_admin_shipping_providers_params;
             self.$wrapper = $( '.wc-gzd-shipping-providers' );
 
             $( document )
                 .on( 'click', '.wc-gzd-shipping-provider-delete', self.onRemoveProvider )
-                .on( 'change', '.wc-gzd-shipping-providers input.wc-gzd-shipping-provider-activated-checkbox', this.onChangeProviderStatus );
+                .on( 'change', '.wc-gzd-shipping-providers input.wc-gzd-shipping-provider-activated-checkbox', this.onChangeProviderStatus )
+                .on( 'click', 'a.wc-gzd-shipments-install-extension-btn', this.onInstallExtension );
+
 
             // Use load event to prevent firing during initial (after ready) phase
             $( window ).on( "load", function() {
@@ -54,7 +56,7 @@ window.germanized.admin = window.germanized.admin || {};
                 return $( this ).val();
             }).get();
 
-            var self = germanized.admin.shipping_providers,
+            var self = shipments.admin.shipping_providers,
                 params = {
                     'action'  : 'woocommerce_gzd_sort_shipping_provider',
                     'order'   : sort,
@@ -64,8 +66,50 @@ window.germanized.admin = window.germanized.admin || {};
             self.doAjax( params );
         },
 
+        onInstallExtension: function() {
+            var self  = shipments.admin.shipping_providers,
+                $this = $( this );
+
+            var params = {
+                action: 'woocommerce_gzd_install_shipping_provider_extension',
+                security: self.params.install_extension_nonce,
+                provider_name: $this.parents( 'tr' ).data( 'shipping-provider' )
+            };
+
+            $this.addClass( 'wc-gzd-shipments-is-loading' );
+            $this.append( '<span class="spinner is-active"></span>' );
+
+            self.doAjax( params, self.onInstallExtensionSuccess );
+
+            return false;
+        },
+
+        onInstallExtensionSuccess: function( data ) {
+            var self  = shipments.admin.shipping_providers,
+                $link = self.$wrapper.find( 'a[data-extension="' + data['extension'] + '"]' );
+
+            $link.find( '.spinner' ).remove();
+            $link.removeClass( 'wc-gzd-is-loading' );
+
+            if ( data.success ) {
+                window.location.href = data.url;
+            } else if ( data.hasOwnProperty( 'message' ) ) {
+                var $wrapper = $( '#wpbody-content' ).find( '.wrap' );
+
+                if ( $( '.wc-gzd-shipments-setting-tabs' ).length > 0 ) {
+                    $wrapper = $( '.wc-gzd-shipments-setting-tabs' );
+                }
+
+                $wrapper.before( '<div class="error inline" id="message"><p>' + data.message + '</p></div>' );
+
+                $( 'html, body' ).animate({
+                    scrollTop: ( $( '#message' ).offset().top - 32 )
+                }, 1000 );
+            }
+        },
+
         onChangeProviderStatus: function() {
-            var self      = germanized.admin.shipping_providers,
+            var self      = shipments.admin.shipping_providers,
                 $checkbox = $( this ),
                 provider  = self.getProviderName( $checkbox ),
                 $toggle   = $checkbox.parents( 'td' ).find( '.woocommerce-gzd-input-toggle' ),
@@ -86,7 +130,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         onChangeProviderStatusSucess: function( data ) {
-            var self      = germanized.admin.shipping_providers,
+            var self      = shipments.admin.shipping_providers,
                 $provider = self.$wrapper.find( 'tr[data-shipping-provider="' + data['provider'] + '"]' ),
                 $toggle   = $provider.find( '.woocommerce-gzd-input-toggle' );
 
@@ -101,7 +145,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         getProviderName: function( $element ) {
-            var self = germanized.admin.shipping_providers;
+            var self = shipments.admin.shipping_providers;
 
             if ( $element.data( 'shipping-provider' ) ) {
                 return $element.data( 'shipping-provider' );
@@ -113,7 +157,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         onRemoveProvider: function() {
-            var self     = germanized.admin.shipping_providers,
+            var self     = shipments.admin.shipping_providers,
                 provider = self.getProviderName( $( this ) );
 
             if ( provider ) {
@@ -128,7 +172,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         removeProvider: function( id ) {
-            var self = germanized.admin.shipping_providers,
+            var self = shipments.admin.shipping_providers,
                 params = {
                     'action'  : 'woocommerce_gzd_remove_shipping_provider',
                     'provider': id,
@@ -140,7 +184,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         onRemoveProviderSuccess: function( data ) {
-            var self      = germanized.admin.shipping_providers,
+            var self      = shipments.admin.shipping_providers,
                 $provider = self.$wrapper.find( 'tr[data-shipping-provider="' + data['provider'] + '"]' );
 
             if ( $provider.length > 0 ) {
@@ -149,7 +193,7 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         block: function() {
-            var self = germanized.admin.shipping_providers;
+            var self = shipments.admin.shipping_providers;
 
             self.$wrapper.block({
                 message: null,
@@ -161,13 +205,13 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         unblock: function() {
-            var self = germanized.admin.shipping_providers;
+            var self = shipments.admin.shipping_providers;
 
             self.$wrapper.unblock();
         },
 
         doAjax: function( params, cSuccess, cError ) {
-            var self     = germanized.admin.shipping_providers,
+            var self     = shipments.admin.shipping_providers,
                 url      = self.params.ajax_url,
                 $wrapper = self.$wrapper;
 
@@ -207,14 +251,14 @@ window.germanized.admin = window.germanized.admin || {};
         },
 
         getParams: function() {
-            var self = germanized.admin.shipping_providers;
+            var self = shipments.admin.shipping_providers;
 
             return self.params;
         }
     };
 
     $( document ).ready( function() {
-        germanized.admin.shipping_providers.init();
+        shipments.admin.shipping_providers.init();
     });
 
-})( jQuery, window.germanized.admin );
+})( jQuery, window.shipments );
