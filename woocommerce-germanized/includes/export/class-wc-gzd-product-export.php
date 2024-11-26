@@ -91,6 +91,7 @@ class WC_GZD_Product_Export {
 				'unit'                     => _x( 'Unit', 'exporter', 'woocommerce-germanized' ),
 				'manufacturer'             => _x( 'Manufacturer', 'exporter', 'woocommerce-germanized' ),
 				'safety_attachment_ids'    => _x( 'Safety attachments ids', 'exporter', 'woocommerce-germanized' ),
+				'safety_instructions'      => _x( 'Safety instructions', 'exporter', 'woocommerce-germanized' ),
 				'unit_base'                => _x( 'Unit base', 'exporter', 'woocommerce-germanized' ),
 				'unit_product'             => _x( 'Unit product', 'exporter', 'woocommerce-germanized' ),
 				'mini_desc'                => _x( 'Cart description', 'exporter', 'woocommerce-germanized' ),
@@ -214,7 +215,7 @@ class WC_GZD_Product_Export {
 				$i = 1;
 				foreach ( $attributes as $attribute_name => $attribute ) {
 					/* translators: %s: attribute number */
-					$this->additional_columns[ 'attributes:checkout_visible' . $i ] = sprintf( __( 'Attribute %d visible in checkout', 'woocommerce-germanized' ), $i );
+					$this->additional_columns[ 'attributes:checkout_visible' . $i ] = sprintf( __( 'Attribute %d checkout visible', 'woocommerce-germanized' ), $i );
 
 					if ( is_a( $attribute, 'WC_Product_Attribute' ) ) {
 						if ( $gzd_attribute = WC_GZD_Product_Attribute_Helper::instance()->get_attribute( $attribute, $product ) ) {
@@ -242,7 +243,7 @@ class WC_GZD_Product_Export {
 		$filter        = current_filter();
 		$column_name   = str_replace( 'woocommerce_product_export_product_column_', '', $filter );
 		$gzd_product   = wc_gzd_get_product( $product );
-		$is_html_field = in_array( $column_name, array( 'ingredients', 'food_description', 'food_place_of_origin', 'food_distributor', 'defect_description', 'mini_desc' ), true );
+		$is_html_field = in_array( $column_name, array( 'ingredients', 'food_description', 'food_place_of_origin', 'food_distributor', 'defect_description', 'mini_desc', 'safety_instructions' ), true );
 
 		/**
 		 * Delivery time needs special handling

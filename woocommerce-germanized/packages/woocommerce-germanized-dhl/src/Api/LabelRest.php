@@ -460,7 +460,7 @@ class LabelRest extends Rest {
 			 * In case the customs item total weight is greater than label weight (e.g. due to rounding issues) replace it
 			 */
 			if ( $customs_label_data['item_total_weight_in_kg'] > $label->get_weight() ) {
-				$shipment_request['details']['weight']['value'] = $customs_label_data['item_total_weight_in_kg'] + $shipment->get_packaging_weight();
+				$shipment_request['details']['weight']['value'] = $customs_label_data['item_total_weight_in_kg'] + wc_get_weight( $shipment->get_packaging_weight(), 'kg', $shipment->get_weight_unit() );
 			}
 
 			$export_type = $this->get_export_type( $customs_label_data, $label );

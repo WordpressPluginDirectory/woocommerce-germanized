@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
+class ComposerStaticInit55b2ff3caf50338fcdcce1bd13abf389
 {
     public static $files = array (
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
@@ -286,6 +286,7 @@ class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
         'DeepCopy\\Matcher\\PropertyTypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/PropertyTypeMatcher.php',
         'DeepCopy\\Reflection\\ReflectionHelper' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Reflection/ReflectionHelper.php',
         'DeepCopy\\TypeFilter\\Date\\DateIntervalFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DateIntervalFilter.php',
+        'DeepCopy\\TypeFilter\\Date\\DatePeriodFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DatePeriodFilter.php',
         'DeepCopy\\TypeFilter\\ReplaceFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ReplaceFilter.php',
         'DeepCopy\\TypeFilter\\ShallowCopyFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ShallowCopyFilter.php',
         'DeepCopy\\TypeFilter\\Spl\\ArrayObjectFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/ArrayObjectFilter.php',
@@ -361,6 +362,7 @@ class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductManufacturer' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductManufacturer.php',
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductNutriScore' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductNutriScore.php',
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductSafetyAttachments' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductSafetyAttachments.php',
+        'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductSafetyInstructions' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductSafetyInstructions.php',
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductShippingCostsInfo' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductShippingCostsInfo.php',
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductTaxInfo' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductTaxInfo.php',
         'Vendidero\\Germanized\\Blocks\\BlockTypes\\ProductUnitPrice' => __DIR__ . '/../..' . '/src/Blocks/BlockTypes/ProductUnitPrice.php',
@@ -472,6 +474,8 @@ class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
         'Vendidero\\Germanized\\Shipments\\Caches\\ShipmentOrderCache' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Caches/ShipmentOrderCache.php',
         'Vendidero\\Germanized\\Shipments\\Caches\\ShippingProviderCache' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Caches/ShippingProviderCache.php',
         'Vendidero\\Germanized\\Shipments\\Compatibility\\Bundles' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Compatibility/Bundles.php',
+        'Vendidero\\Germanized\\Shipments\\Compatibility\\ShipmentTracking' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Compatibility/ShipmentTracking.php',
+        'Vendidero\\Germanized\\Shipments\\Compatibility\\WPML' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Compatibility/WPML.php',
         'Vendidero\\Germanized\\Shipments\\DataStores\\Label' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/DataStores/Label.php',
         'Vendidero\\Germanized\\Shipments\\DataStores\\Packaging' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/DataStores/Packaging.php',
         'Vendidero\\Germanized\\Shipments\\DataStores\\Shipment' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/DataStores/Shipment.php',
@@ -555,9 +559,9 @@ class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
         'Vendidero\\Germanized\\Shipments\\Utilities\\NumberUtil' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Utilities/NumberUtil.php',
         'Vendidero\\Germanized\\Shipments\\Utilities\\VariableStreamHandler' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Utilities/VariableStreamHandler.php',
         'Vendidero\\Germanized\\Shipments\\Validation' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/Validation.php',
-        'Vendidero\\Germanized\\Shipments\\WPMLHelper' => __DIR__ . '/../..' . '/packages/woocommerce-germanized-shipments/src/WPMLHelper.php',
         'Vendidero\\Germanized\\Shopmark' => __DIR__ . '/../..' . '/src/Shopmark.php',
         'Vendidero\\Germanized\\Shopmarks' => __DIR__ . '/../..' . '/src/Shopmarks.php',
+        'Vendidero\\Germanized\\Utilities\\CartCheckout' => __DIR__ . '/../..' . '/src/Utilities/CartCheckout.php',
         'Vendidero\\Germanized\\Utilities\\NumberUtil' => __DIR__ . '/../..' . '/src/Utilities/NumberUtil.php',
         'baltpeter\\Internetmarke\\Address' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Address.php',
         'baltpeter\\Internetmarke\\AddressBinding' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/AddressBinding.php',
@@ -636,9 +640,9 @@ class ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit5951f82e5bf44515875faf58d3dc30fd::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit55b2ff3caf50338fcdcce1bd13abf389::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit55b2ff3caf50338fcdcce1bd13abf389::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit55b2ff3caf50338fcdcce1bd13abf389::$classMap;
 
         }, null, ClassLoader::class);
     }

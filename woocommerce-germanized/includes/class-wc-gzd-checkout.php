@@ -145,6 +145,7 @@ class WC_GZD_Checkout {
 		if ( 'never' !== get_option( 'woocommerce_gzd_checkout_validate_street_number' ) ) {
 			// Maybe force street number during checkout
 			add_action( 'woocommerce_after_checkout_validation', array( $this, 'maybe_force_street_number' ), 10, 2 );
+			add_filter( 'woocommerce_checkout_posted_data', array( $this, 'maybe_format_address_1' ), 10 );
 		}
 
 		/**
@@ -337,7 +338,7 @@ class WC_GZD_Checkout {
 					foreach ( $cart->get_cart() as $cart_item_key => $values ) {
 						$_product = apply_filters( 'woocommerce_cart_item_product', $values['data'], $values, $cart_item_key );
 
-						if ( wc_gzd_get_product( $_product )->is_photovoltaic_system() ) {
+						if ( wc_gzd_get_product( $_product )->is_photovoltaic_system() || apply_filters( 'woocommerce_gzd_photovoltaic_cart_product_is_photovoltaic_accessory', false, $_product ) ) {
 							if ( wc_prices_include_tax() && 'yes' === get_option( 'woocommerce_gzd_photovoltaic_systems_net_price' ) ) {
 								$price         = $_product->get_price();
 								$excluding_tax = wc_get_price_excluding_tax(
@@ -357,7 +358,7 @@ class WC_GZD_Checkout {
 					foreach ( $cart->get_cart() as $cart_item_key => $values ) {
 						$_product = apply_filters( 'woocommerce_cart_item_product', $values['data'], $values, $cart_item_key );
 
-						if ( wc_gzd_get_product( $_product )->is_photovoltaic_system() ) {
+						if ( wc_gzd_get_product( $_product )->is_photovoltaic_system() || apply_filters( 'woocommerce_gzd_photovoltaic_cart_product_is_photovoltaic_accessory', false, $_product ) ) {
 							$zero_tax_class = get_option( 'woocommerce_gzd_photovoltaic_systems_zero_tax_class', 'zero-rate' );
 
 							/**
@@ -431,6 +432,43 @@ class WC_GZD_Checkout {
 		}
 
 		return $locale;
+	}
+
+	/**
+	 * Enforces whitespace between street name and house number, e.g. typical input issues
+	 * like "Street12" instead of "Street 12".
+	 *
+	 * @param string $address_1
+	 *
+	 * @return string
+	 */
+	public function format_address_1( $address_1 ) {
+		if ( function_exists( 'wc_gzd_split_shipment_street' ) ) {
+			$do_validate = get_option( 'woocommerce_gzd_checkout_validate_street_number' );
+
+			if ( apply_filters( 'woocommerce_gzd_autocorrect_address_1', in_array( $do_validate, array( 'always', 'base_only', 'eu_only' ), true ) ) ) {
+				$parts = wc_gzd_split_shipment_street( $address_1 );
+
+				if ( '' !== $parts['number'] && ! empty( $parts['street'] ) ) {
+					$address_1 = trim( str_replace( $parts['street'], ' ' . $parts['street'] . ' ', $address_1 ) ); // replace the street name tailored with whitespace
+					$address_1 = preg_replace( '/\s+/', ' ', $address_1 ); // Remove duplicate whitespace
+				}
+			}
+		}
+
+		return $address_1;
+	}
+
+	public function maybe_format_address_1( $data ) {
+		if ( ! empty( $data['billing_address_1'] ) ) {
+			$data['billing_address_1'] = $this->format_address_1( $data['billing_address_1'] );
+		}
+
+		if ( ! empty( $data['shipping_address_1'] ) ) {
+			$data['shipping_address_1'] = $this->format_address_1( $data['shipping_address_1'] );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -578,20 +616,20 @@ class WC_GZD_Checkout {
 	 * @param WC_Order $order
 	 */
 	public function order_meta( $order ) {
-		if ( wc_gzd_additional_costs_include_tax() ) {
-			$order->update_meta_data( '_additional_costs_include_tax', 'yes' );
-		}
+		if ( wc_gzd_enable_additional_costs_split_tax_calculation() || wc_gzd_calculate_additional_costs_taxes_based_on_main_service() ) {
+			$order->update_meta_data( '_additional_costs_include_tax', wc_bool_to_string( wc_gzd_additional_costs_include_tax() ) );
 
-		if ( wc_gzd_enable_additional_costs_split_tax_calculation() ) {
-			$tax_shares = wc_gzd_get_cart_tax_share( 'shipping', $order->get_items() );
+			if ( wc_gzd_enable_additional_costs_split_tax_calculation() ) {
+				$tax_shares = wc_gzd_get_cart_tax_share( 'shipping', $order->get_items() );
 
-			if ( count( $tax_shares ) > 1 ) {
-				$order->update_meta_data( '_has_split_tax', 'yes' );
+				if ( count( $tax_shares ) > 1 ) {
+					$order->update_meta_data( '_has_split_tax', 'yes' );
+				}
+			} elseif ( wc_gzd_calculate_additional_costs_taxes_based_on_main_service() ) {
+				$order->update_meta_data( '_additional_costs_taxed_based_on_main_service', 'yes' );
+				$order->update_meta_data( '_additional_costs_taxed_based_on_main_service_by', wc_gzd_additional_costs_taxes_detect_main_service_by() );
+				$order->update_meta_data( '_additional_costs_taxed_based_on_main_service_tax_class', wc_gzd_get_cart_main_service_tax_class() );
 			}
-		} elseif ( wc_gzd_calculate_additional_costs_taxes_based_on_main_service() ) {
-			$order->update_meta_data( '_additional_costs_taxed_based_on_main_service', 'yes' );
-			$order->update_meta_data( '_additional_costs_taxed_based_on_main_service_by', wc_gzd_additional_costs_taxes_detect_main_service_by() );
-			$order->update_meta_data( '_additional_costs_taxed_based_on_main_service_tax_class', wc_gzd_get_cart_main_service_tax_class() );
 		}
 	}
 

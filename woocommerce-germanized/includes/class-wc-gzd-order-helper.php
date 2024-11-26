@@ -340,7 +340,7 @@ class WC_GZD_Order_Helper {
 			$fee_props->tax_class = $item->get_tax_class();
 			$fee_props->taxable   = 'taxable' === $item->get_tax_status();
 			$fee_props->amount    = $item->get_amount();
-			$fee_props->id        = sanitize_title( $fee_props->name );
+			$fee_props->id        = $item->get_meta( '_voucher_id' ) ? sanitize_title( $item->get_meta( '_voucher_id' ) ) : sanitize_title( $fee_props->name );
 			$fee_props->object    = $fee_props;
 
 			if ( ! apply_filters( 'woocommerce_gzd_force_fee_tax_calculation', true, $fee_props ) ) {
@@ -894,20 +894,20 @@ class WC_GZD_Order_Helper {
 			if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) {
 				foreach ( $order->get_tax_totals() as $code => $tax ) {
 					$tax->rate = wc_gzd_get_order_tax_rate_percentage( $tax->rate_id, $order );
+					$rate_key  = (string) $tax->rate;
 
-					if ( ! isset( $tax_array[ $tax->rate ] ) ) {
-						$tax_array[ $tax->rate ] = array(
+					if ( ! isset( $tax_array[ $rate_key ] ) ) {
+						$tax_array[ $rate_key ] = array(
 							'tax'      => $tax,
 							'amount'   => $tax->amount,
 							'contains' => array( $tax ),
 						);
 					} else {
-						array_push( $tax_array[ $tax->rate ]['contains'], $tax );
-						$tax_array[ $tax->rate ]['amount'] += $tax->amount;
+						array_push( $tax_array[ $rate_key ]['contains'], $tax );
+						$tax_array[ $rate_key ]['amount'] += $tax->amount;
 					}
 				}
 			} else {
-
 				$base_rate = WC_Tax::get_base_tax_rates();
 				$rate      = reset( $base_rate );
 				$rate_id   = key( $base_rate );

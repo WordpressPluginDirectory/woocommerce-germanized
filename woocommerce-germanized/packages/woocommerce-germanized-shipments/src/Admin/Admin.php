@@ -587,7 +587,7 @@ class Admin {
 
 			if ( $shipment_order = wc_gzd_get_shipment_order( $the_order ) ) {
 				$shipping_status = $shipment_order->get_shipping_status();
-				$status_html     = '<span class="order-shipping-status status-' . esc_attr( $shipping_status ) . '">' . esc_html( wc_gzd_get_shipment_order_shipping_status_name( $shipping_status ) ) . '</span>';
+				$status_html     = '<mark class="order-shipping-status status-' . esc_attr( $shipping_status ) . '"><span>' . esc_html( wc_gzd_get_shipment_order_shipping_status_name( $shipping_status ) ) . '</span></mark>';
 
 				if ( in_array( $shipping_status, array( 'shipped', 'partially-shipped' ), true ) && $shipment_order->get_shipments() ) {
 					if ( $last_shipment = $shipment_order->get_last_shipment_with_tracking() ) {
@@ -1672,9 +1672,10 @@ class Admin {
 		wp_register_script( 'wc-gzd-shipments-admin-settings', Package::get_assets_url( '/static/admin-settings.js' ), array( 'wc-gzd-shipments-admin' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 		wp_register_script( 'wc-gzd-shipments-admin-shipment-modal', Package::get_assets_url( 'static/admin-shipment-modal.js' ), array( 'wc-gzd-shipments-admin', 'wc-backbone-modal' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
-		wp_register_script( 'wc-gzd-shipments-admin-shipment', Package::get_assets_url( 'static/admin-shipment.js' ), array( 'wc-gzd-shipments-admin-shipment-modal' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		wp_register_script( 'wc-gzd-shipments-admin-shipment-label', Package::get_assets_url( 'static/admin-shipment-label.js' ), array( 'wc-gzd-shipments-admin' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		wp_register_script( 'wc-gzd-shipments-admin-shipment', Package::get_assets_url( 'static/admin-shipment.js' ), array( 'wc-gzd-shipments-admin-shipment-modal', 'wc-gzd-shipments-admin-shipment-label' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_register_script( 'wc-gzd-shipments-admin-shipments', Package::get_assets_url( 'static/admin-shipments.js' ), array( 'wc-admin-order-meta-boxes', 'wc-gzd-shipments-admin-shipment' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
-		wp_register_script( 'wc-gzd-shipments-admin-shipments-table', Package::get_assets_url( 'static/admin-shipments-table.js' ), array( 'wc-gzd-shipments-admin', 'wc-gzd-shipments-admin-shipment-modal' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		wp_register_script( 'wc-gzd-shipments-admin-shipments-table', Package::get_assets_url( 'static/admin-shipments-table.js' ), array( 'wc-gzd-shipments-admin', 'wc-gzd-shipments-admin-shipment-modal', 'wc-gzd-shipments-admin-shipment-label' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 		wp_register_script( 'wc-gzd-shipments-admin-shipping-rules', Package::get_assets_url( '/static/admin-shipping-rules.js' ), array( 'wc-gzd-shipments-admin', 'jquery-ui-sortable', 'wp-util', 'underscore', 'backbone' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_register_script( 'wc-gzd-shipments-admin-packaging', Package::get_assets_url( '/static/admin-packaging.js' ), array( 'wc-gzd-shipments-admin-settings' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
@@ -1833,7 +1834,7 @@ class Admin {
 		$params = array();
 
 		if ( self::is_shipping_settings_request() ) {
-			$params['clean_input_callback'] = 'germanized.admin.shipping_provider_method.getCleanInputId';
+			$params['clean_input_callback'] = 'shipments.admin.shipping_provider_method.getCleanInputId';
 		}
 
 		return $params;

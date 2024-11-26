@@ -3,13 +3,13 @@
  * Plugin Name: Germanized for WooCommerce
  * Plugin URI: https://www.vendidero.de/woocommerce-germanized
  * Description: Germanized for WooCommerce extends WooCommerce to become a legally compliant store in the german market.
- * Version: 3.18.3
+ * Version: 3.18.5
  * Author: vendidero
  * Author URI: https://vendidero.de
  * Requires at least: 5.4
- * Tested up to: 6.6
+ * Tested up to: 6.7
  * WC requires at least: 3.9
- * WC tested up to: 9.2
+ * WC tested up to: 9.4
  *
  * Text Domain: woocommerce-germanized
  * Domain Path: /i18n/languages/
@@ -69,7 +69,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '3.18.3';
+		public $version = '3.18.5';
 
 		/**
 		 * @var WooCommerce_Germanized $instance of the plugin
@@ -264,13 +264,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			}
 
 			\Vendidero\Germanized\PluginsHelper::init();
-
-			add_action(
-				'init1',
-				function () {
-					$product = wc_get_product( 4871 );
-				}
-			);
 		}
 
 		public function declare_feature_compatibility() {
@@ -325,6 +318,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			add_action( 'wp_print_footer_scripts', array( $this, 'localize_scripts' ), 5 );
 
 			add_filter( 'woocommerce_locate_core_template', array( $this, 'email_templates' ), 0, 3 );
+			add_filter( 'woocommerce_structured_data_product', array( $this, 'add_structured_product_data' ), 10, 2 );
 
 			// Payment gateways
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'register_gateways' ) );
@@ -704,6 +698,7 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 					'erecht24'                         => 'WC_GZD_Compatibility_ERecht24',
 					'wc-dynamic-pricing-and-discounts' => 'WC_GZD_Compatibility_WC_Dynamic_Pricing_And_Discounts',
 					'cartflows'                        => 'WC_GZD_Compatibility_Cartflows',
+					'google-for-woocommerce'           => 'WC_GZD_Compatibility_Google_For_WooCommerce',
 				)
 			);
 
@@ -1061,7 +1056,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 				'static/unit-price-observer-queue.js',
 				array(
 					'jquery',
-					'woocommerce',
 				)
 			);
 
@@ -1082,7 +1076,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 				'static/add-to-cart-variation.js',
 				array(
 					'jquery',
-					'woocommerce',
 					'wc-add-to-cart-variation',
 				)
 			);
@@ -1529,7 +1522,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		 * @return string
 		 */
 		public function email_templates( $core_file, $template, $template_base ) {
-
 			if ( ! file_exists( $template_base . $template ) && file_exists( $this->plugin_path() . '/templates/' . $template ) ) {
 				$core_file = $this->plugin_path() . '/templates/' . $template;
 			}
@@ -1548,7 +1540,6 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 		}
 
 		public function register_gateways( $gateways ) {
-
 			// Do only load gateway for PHP >= 5.3 because of Namespaces
 			if ( version_compare( phpversion(), '5.3', '>=' ) ) {
 				$gateways[] = 'WC_GZD_Gateway_Direct_Debit';
@@ -1557,6 +1548,19 @@ if ( ! class_exists( 'WooCommerce_Germanized' ) ) :
 			$gateways[] = 'WC_GZD_Gateway_Invoice';
 
 			return $gateways;
+		}
+
+		public function add_structured_product_data( $markup, $product ) {
+			if ( $gzd_product = wc_gzd_get_gzd_product( $product ) ) {
+				if ( $gtin = $gzd_product->get_gtin() ) {
+					$markup['gtin'] = $gtin;
+				}
+				if ( $mpn = $gzd_product->get_mpn() ) {
+					$markup['mpn'] = $mpn;
+				}
+			}
+
+			return $markup;
 		}
 	}
 

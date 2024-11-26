@@ -694,8 +694,8 @@ class PickupDelivery {
 			return;
 		}
 
-		wp_register_script( 'wc-gzd-shipments-modal', Package::get_assets_url( 'static/modal.js' ), array( 'jquery' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
-		wp_register_script( 'wc-gzd-shipments-pickup-locations', Package::get_assets_url( 'static/pickup-locations.js' ), array( 'jquery', 'woocommerce', 'selectWoo', 'wc-gzd-shipments-modal' ), Package::get_version() ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		Package::register_script( 'wc-gzd-shipments-modal', 'static/modal.js', array( 'jquery' ) );
+		Package::register_script( 'wc-gzd-shipments-pickup-locations', 'static/pickup-locations.js', array( 'jquery', 'woocommerce', 'selectWoo', 'wc-gzd-shipments-modal' ) );
 
 		// Register admin styles.
 		wp_register_style( 'woocommerce_gzd_shipments_pickup_locations', Package::get_assets_url( 'static/pickup-locations-styles.css' ), array(), Package::get_version() );
@@ -715,6 +715,17 @@ class PickupDelivery {
 		wp_enqueue_script( 'wc-gzd-shipments-pickup-locations' );
 	}
 
+	public static function get_excluded_gateways() {
+		/**
+		 * Filter to disable pickup delivery for certain gateways.
+		 *
+		 * @param array $gateways Array of gateway IDs to exclude.
+		 */
+		$codes = apply_filters( 'woocommerce_gzd_shipments_pickup_delivery_excluded_gateways', array( 'cod', 'amazon_payments_advanced' ) );
+
+		return $codes;
+	}
+
 	public static function get_pickup_delivery_cart_args() {
 		if ( ! wc()->cart ) {
 			return array(
@@ -725,6 +736,7 @@ class PickupDelivery {
 					'height' => 0.0,
 				),
 				'payment_gateway' => '',
+				'shipping_method' => false,
 			);
 		}
 
@@ -803,7 +815,8 @@ class PickupDelivery {
 		return array(
 			'max_weight'      => $max_weight,
 			'max_dimensions'  => $max_dimensions,
-			'payment_gateway' => WC()->session ? WC()->session->get( 'chosen_payment_method' ) : '',
+			'payment_gateway' => Package::get_current_payment_gateway(),
+			'shipping_method' => $shipping_method,
 		);
 	}
 
