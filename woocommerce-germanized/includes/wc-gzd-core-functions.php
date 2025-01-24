@@ -1828,8 +1828,9 @@ function wc_gzd_get_photovoltaic_system_customer_location( $args = array() ) {
 function wc_gzd_customer_applies_for_photovoltaic_system_vat_exemption( $args = array() ) {
 	$args                                   = wc_gzd_get_photovoltaic_system_customer_location( $args );
 	$applies_for_photovoltaic_vat_exemption = false;
+	$is_vat_exempt                          = WC()->customer && WC()->customer->is_vat_exempt();
 
-	if ( empty( $args['company'] ) || apply_filters( 'woocommerce_gzd_allow_b2b_photovoltaic_system_vat_exemption', false ) ) {
+	if ( ! $is_vat_exempt && ( empty( $args['company'] ) || apply_filters( 'woocommerce_gzd_allow_b2b_photovoltaic_system_vat_exemption', false ) ) ) {
 		/**
 		 * Allow VAT exemption for:
 		 * - shipments to a country supporting photovoltaic exempts (from the base country or from another EU country which takes part in OSS procedure).
@@ -1873,4 +1874,48 @@ function wc_gzd_remove_all_hooks( $hook, $priority = 10 ) {
 			remove_all_filters( $hook, $priority );
 		}
 	}
+}
+
+function wc_gzd_kses_post_svg( $html ) {
+	$kses_post = wp_kses_allowed_html( 'post' );
+
+	$svg_args = array(
+		'svg'   => array(
+			'class'           => true,
+			'aria-hidden'     => true,
+			'aria-labelledby' => true,
+			'role'            => true,
+			'xmlns'           => true,
+			'width'           => true,
+			'height'          => true,
+			'viewbox'         => true,
+			'text'            => true,
+			'title'           => true,
+		),
+		'line'  => array(
+			'class'        => true,
+			'x1'           => true,
+			'y1'           => true,
+			'x2'           => true,
+			'y2'           => true,
+			'stroke-width' => true,
+			'stroke'       => true,
+		),
+		'g'     => array( 'fill' => true ),
+		'text'  => array(
+			'x'     => true,
+			'y'     => true,
+			'class' => true,
+		),
+		'title' => array( 'title' => true ),
+		'path'  => array(
+			'd'     => true,
+			'fill'  => true,
+			'class' => true,
+		),
+	);
+
+	$kses_post = array_merge( $kses_post, $svg_args );
+
+	return wp_kses( $html, $kses_post );
 }

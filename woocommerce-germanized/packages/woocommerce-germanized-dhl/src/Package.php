@@ -25,7 +25,7 @@ class Package {
 	 *
 	 * @var string
 	 */
-	const VERSION = '3.4.1';
+	const VERSION = '3.5.0';
 
 	public static $upload_dir_suffix = '';
 
@@ -771,6 +771,10 @@ class Package {
 
 	public static function get_dhl_com_api_key() {
 		return 'uwi1SH5bHDdMTdcWXB5JIsDCvBOyIawn';
+	}
+
+	public static function get_dhl_com_api_secret() {
+		return 'Qe8ZTtQiOWaEcjad';
 	}
 
 	public static function get_business_portal_url() {
