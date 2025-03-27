@@ -26,19 +26,6 @@ trait PickupDeliveryTrait {
 		return $supports;
 	}
 
-	protected function parse_pickup_location_query_args( $query_args ) {
-		$query_args = wp_parse_args(
-			$query_args,
-			array(
-				'limit' => min( absint( Package::get_setting( 'parcel_pickup_max_results', false, 20 ) ), 50 ),
-			)
-		);
-
-		$query_args = parent::parse_pickup_location_query_args( $query_args );
-
-		return $query_args;
-	}
-
 	protected function fetch_single_pickup_location( $location_code, $address = array() ) {
 		$address       = $this->get_address_by_pickup_location_code( $location_code, $address );
 		$location_code = $this->parse_pickup_location_code( $location_code );
@@ -76,6 +63,20 @@ trait PickupDeliveryTrait {
 		return $keyword_id;
 	}
 
+	/**
+	 * @param $data
+	 *
+	 * @return PickupLocation|false
+	 */
+	protected function get_pickup_location_instance( $data ) {
+		try {
+			return new PickupLocation( (array) $data );
+		} catch ( \Exception $e ) {
+			Package::log( $e, 'error' );
+			return false;
+		}
+	}
+
 	protected function get_pickup_location_from_api_response( $location ) {
 		$address = array(
 			'company'   => $location->name,
@@ -85,48 +86,44 @@ trait PickupDeliveryTrait {
 			'city'      => $location->place->address->addressLocality,
 		);
 
-		try {
-			$supports_customer_number     = true;
-			$customer_number_is_mandatory = 'locker' === $location->location->type ? true : false;
+		$supports_customer_number     = true;
+		$customer_number_is_mandatory = 'locker' === $location->location->type ? true : false;
 
+		$replacement_map = array(
+			'address_1' => 'label',
+			'country'   => 'country',
+			'postcode'  => 'postcode',
+			'city'      => 'city',
+			'company'   => '',
+		);
+
+		if ( 'DE' !== $address['country'] ) {
 			$replacement_map = array(
-				'address_1' => 'label',
+				'address_2' => 'label',
+				'address_1' => 'address_1',
 				'country'   => 'country',
 				'postcode'  => 'postcode',
 				'city'      => 'city',
+				'company'   => '',
 			);
 
-			if ( 'DE' !== $address['country'] ) {
-				$replacement_map = array(
-					'address_2' => 'label',
-					'address_1' => 'address_1',
-					'country'   => 'country',
-					'postcode'  => 'postcode',
-					'city'      => 'city',
-				);
-
-				$supports_customer_number     = false;
-				$customer_number_is_mandatory = false;
-			}
-
-			return new PickupLocation(
-				array(
-					'code'                         => $location->internal_id,
-					'type'                         => $location->location->type,
-					'label'                        => $location->internal_name,
-					'latitude'                     => $location->place->geo->latitude,
-					'longitude'                    => $location->place->geo->longitude,
-					'supports_customer_number'     => $supports_customer_number,
-					'customer_number_is_mandatory' => $customer_number_is_mandatory,
-					'address'                      => $address,
-					'address_replacement_map'      => $replacement_map,
-				)
-			);
-		} catch ( \Exception $e ) {
-			Package::log( $e, 'error' );
-
-			return false;
+			$supports_customer_number     = false;
+			$customer_number_is_mandatory = false;
 		}
+
+		return $this->get_pickup_location_instance(
+			array(
+				'code'                         => $location->internal_id,
+				'type'                         => $location->location->type,
+				'label'                        => $location->internal_name,
+				'latitude'                     => $location->place->geo->latitude,
+				'longitude'                    => $location->place->geo->longitude,
+				'supports_customer_number'     => $supports_customer_number,
+				'customer_number_is_mandatory' => $customer_number_is_mandatory,
+				'address'                      => $address,
+				'address_replacement_map'      => $replacement_map,
+			)
+		);
 	}
 
 	protected function get_pickup_location_types() {

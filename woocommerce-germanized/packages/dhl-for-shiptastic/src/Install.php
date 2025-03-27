@@ -19,9 +19,8 @@ class Install {
 
 		if ( ! is_null( $current_version ) ) {
 			self::update( $current_version );
-		} elseif ( $dhl = Package::get_dhl_shipping_provider() ) {
-				$dhl->activate(); // Activate on new install
-
+		} elseif ( Package::is_standalone() && ( $dhl = Package::get_dhl_shipping_provider() ) ) {
+			$dhl->activate(); // Activate on new install
 		}
 
 		update_option( 'woocommerce_shiptastic_dhl_version', Package::get_version() );
@@ -137,7 +136,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_stc_dhl_im_products (
   product_version int(5) NOT NULL DEFAULT 1,
   product_annotation varchar(500) NOT NULL DEFAULT '',
   product_description varchar(500) NOT NULL DEFAULT '',
-  product_information_text text NOT NULL DEFAULT '',
+  product_information_text text NULL,
   product_type varchar(50) NOT NULL DEFAULT 'sales',
   product_destination varchar(20) NOT NULL DEFAULT 'national',
   product_price int(8) NOT NULL,

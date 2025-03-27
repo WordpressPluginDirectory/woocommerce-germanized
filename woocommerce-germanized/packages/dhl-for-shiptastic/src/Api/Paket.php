@@ -59,7 +59,7 @@ class Paket {
 	 * @return ReturnRest|\Vendidero\Shiptastic\Interfaces\Api
 	 */
 	public function get_return_api() {
-		return Helper::get_api( 'dhl_paket_label_rest', $this->is_debug_mode() );
+		return Helper::get_api( 'dhl_paket_return_rest', $this->is_debug_mode() );
 	}
 
 	public function get_parcel_api() {
@@ -96,7 +96,11 @@ class Paket {
 	}
 
 	public function delete_label( &$label ) {
-		return $this->get_label_api()->delete_label( $label );
+		if ( $api = $this->get_label_api() ) {
+			return $api->delete_label( $label );
+		}
+
+		return false;
 	}
 
 	protected function is_holiday( $datetime ) {

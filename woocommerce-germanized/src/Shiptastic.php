@@ -67,14 +67,37 @@ class Shiptastic {
 		add_filter( 'woocommerce_shiptastic_dhl_label_api_communication_phone', array( __CLASS__, 'legacy_filter_callback' ), 10, 2 );
 
 		/**
-		 * Status hooks
+		 * Valid status name (remove gzd- prefix)
+		 */
+		add_filter( 'woocommerce_shiptastic_shipment_valid_status_slug', array( __CLASS__, 'remove_gzd_prefix_from_status' ), 10 );
+		add_filter( 'woocommerce_shiptastic_return_shipment_valid_status_slug', array( __CLASS__, 'remove_gzd_prefix_from_status' ), 10 );
+
+		/**
+		 *  Status hooks
+		 *
+		 * @note: Return a legacy shipment object as PayPal Payments has a compatibility script which uses strict typing.
 		 */
 		add_action(
 			'init',
 			function () {
 				foreach ( wc_stc_get_shipment_statuses() as $status_name => $title ) {
-					add_action( "woocommerce_shiptastic_shipment_status_{$status_name}", array( __CLASS__, 'legacy_action_callback' ), 10, 2 );
-					add_action( "woocommerce_shiptastic_return_shipment_status_{$status_name}", array( __CLASS__, 'legacy_action_callback' ), 10, 2 );
+					add_action(
+						"woocommerce_shiptastic_shipment_status_{$status_name}",
+						function ( $shipment_id, $shipment ) {
+							self::legacy_action_callback( $shipment_id, \Vendidero\Germanized\Shipments\Shipment::from_shiptastic( $shipment ) );
+						},
+						10,
+						2
+					);
+
+					add_action(
+						"woocommerce_shiptastic_return_shipment_status_{$status_name}",
+						function ( $shipment_id, $shipment ) {
+							self::legacy_action_callback( $shipment_id, \Vendidero\Germanized\Shipments\Shipment::from_shiptastic( $shipment ) );
+						},
+						10,
+						2
+					);
 				}
 			}
 		);
@@ -114,11 +137,27 @@ class Shiptastic {
 				add_shortcode(
 					'gzd_return_request_form',
 					function ( $args = array() ) {
-						\Vendidero\Shiptastic\Package::return_request_form( $args );
+						return \Vendidero\Shiptastic\Package::return_request_form( $args );
 					}
 				);
 			}
 		);
+	}
+
+	public static function remove_gzd_prefix_from_status( $new_status ) {
+		$new_status = 'gzd-' === substr( $new_status, 0, 4 ) ? substr( $new_status, 4 ) : $new_status;
+
+		return $new_status;
+	}
+
+	public static function legacy_shipment_item_classname( $item_class, $item_id, $item_type ) {
+		$item_class = 'Vendidero\Germanized\Shipments\ShipmentItem';
+
+		if ( 'return' === $item_type ) {
+			$item_class = 'Vendidero\Germanized\Shipments\ShipmentReturnItem';
+		}
+
+		return $item_class;
 	}
 
 	protected static function remove_gzd_status_prefix( $status ) {

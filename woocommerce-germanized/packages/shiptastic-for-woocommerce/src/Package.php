@@ -18,7 +18,7 @@ class Package {
 	 *
 	 * @var string
 	 */
-	const VERSION = '4.3.0';
+	const VERSION = '4.3.5';
 
 	public static $upload_dir_suffix = '';
 
@@ -872,9 +872,13 @@ class Package {
 	}
 
 	public static function declare_feature_compatibility() {
+		if ( ! self::is_standalone() ) {
+			return;
+		}
+
 		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', self::get_path(), true );
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', self::get_path(), true );
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', trailingslashit( self::get_path() ) . 'shiptastic-for-woocommerce.php', true );
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', trailingslashit( self::get_path() ) . 'shiptastic-for-woocommerce.php', true );
 		}
 	}
 
