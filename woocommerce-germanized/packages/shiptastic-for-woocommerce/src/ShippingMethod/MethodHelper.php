@@ -90,6 +90,8 @@ class MethodHelper {
 
 				if ( ! is_a( $product, 'WC_Product' ) ) {
 					continue;
+				} elseif ( ! $product->needs_shipping() ) {
+					continue;
 				}
 
 				$s_product     = wc_shiptastic_get_product( $product );
@@ -139,7 +141,7 @@ class MethodHelper {
 			 * as Woo does not pass the current $cart object to the filter used here. Within the shipping package data there is unfortunately
 			 * no item total amount (incl taxes) available.
 			 */
-			if ( 0 !== $cart_contents[ $index ]['cart_subtotal'] && apply_filters( 'shiptastic_prefer_cart_totals_over_cart_item_totals', false, $cart_contents ) ) {
+			if ( isset( $cart_contents[ $index ]['cart_subtotal'] ) && 0 !== $cart_contents[ $index ]['cart_subtotal'] && apply_filters( 'shiptastic_prefer_cart_totals_over_cart_item_totals', false, $cart_contents ) ) {
 				$cart  = WC()->cart;
 				$total = (float) $cart->get_cart_contents_total();
 

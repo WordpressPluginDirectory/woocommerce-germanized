@@ -55,49 +55,6 @@
             "install-path": "../automattic/jetpack-autoloader"
         },
         {
-            "name": "baltpeter/internetmarke-php",
-            "version": "v0.5.0",
-            "version_normalized": "0.5.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/baltpeter/internetmarke-php.git",
-                "reference": "7657ee5a55eb80c77a35e35ce71c465364d73ab4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/baltpeter/internetmarke-php/zipball/7657ee5a55eb80c77a35e35ce71c465364d73ab4",
-                "reference": "7657ee5a55eb80c77a35e35ce71c465364d73ab4",
-                "shasum": ""
-            },
-            "require": {
-                "myclabs/deep-copy": "^1.8"
-            },
-            "time": "2019-07-31T10:13:23+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "baltpeter\\Internetmarke\\": "src/baltpeter/Internetmarke"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Benjamin Altpeter",
-                    "email": "hi@bn.al"
-                }
-            ],
-            "description": "A simple PHP wrapper for the Deutsche Post Internetmarke web service",
-            "support": {
-                "issues": "https://github.com/baltpeter/internetmarke-php/issues",
-                "source": "https://github.com/baltpeter/internetmarke-php/tree/master"
-            },
-            "install-path": "../baltpeter/internetmarke-php"
-        },
-        {
             "name": "composer/installers",
             "version": "v1.12.0",
             "version_normalized": "1.12.0.0",
@@ -495,69 +452,6 @@
             "install-path": "../globalcitizen/php-iban"
         },
         {
-            "name": "myclabs/deep-copy",
-            "version": "1.13.0",
-            "version_normalized": "1.13.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/024473a478be9df5fdaca2c793f2232fe788e414",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1 || ^8.0"
-            },
-            "conflict": {
-                "doctrine/collections": "<1.6.8",
-                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
-            },
-            "require-dev": {
-                "doctrine/collections": "^1.6.8",
-                "doctrine/common": "^2.13.3 || ^3.2.2",
-                "phpspec/prophecy": "^1.10",
-                "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
-            },
-            "time": "2025-02-12T12:17:51+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "files": [
-                    "src/DeepCopy/deep_copy.php"
-                ],
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Create deep copies (clones) of your objects",
-            "keywords": [
-                "clone",
-                "copy",
-                "duplicate",
-                "object",
-                "object graph"
-            ],
-            "support": {
-                "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.0"
-            },
-            "funding": [
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
-                    "type": "tidelift"
-                }
-            ],
-            "install-path": "../myclabs/deep-copy"
-        },
-        {
             "name": "paragonie/random_compat",
             "version": "v9.99.100",
             "version_normalized": "9.99.100.0",
@@ -788,79 +682,18 @@
             "install-path": "../setasign/fpdi"
         },
         {
-            "name": "vendidero/dhl-for-shiptastic",
-            "version": "3.6.5",
-            "version_normalized": "3.6.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vendidero/dhl-for-shiptastic.git",
-                "reference": "968b601dc1fa90be75457af5a874b5c682bb1e5f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vendidero/dhl-for-shiptastic/zipball/968b601dc1fa90be75457af5a874b5c682bb1e5f",
-                "reference": "968b601dc1fa90be75457af5a874b5c682bb1e5f",
-                "shasum": ""
-            },
-            "require": {
-                "automattic/jetpack-autoloader": "2.11.18",
-                "baltpeter/internetmarke-php": "^0.5.0",
-                "composer/installers": "^1.9.0",
-                "php": ">=5.6|>=7.0"
-            },
-            "require-dev": {
-                "woocommerce/woocommerce-sniffs": "^1.0.0"
-            },
-            "time": "2025-04-01T13:56:35+00:00",
-            "type": "wordpress-plugin",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "Vendidero\\Shiptastic\\DHL\\": "src"
-                }
-            },
-            "scripts": {
-                "post-install-cmd": [
-                    "sh ./bin/package-update.sh",
-                    "python3 ./bin/update-holidays.py"
-                ],
-                "post-update-cmd": [
-                    "sh ./bin/package-update.sh",
-                    "python3 ./bin/update-holidays.py"
-                ],
-                "phpcs": [
-                    "phpcs -s -p"
-                ],
-                "phpcs-pre-commit": [
-                    "phpcs -s -p -n"
-                ],
-                "phpcbf": [
-                    "phpcbf -p"
-                ]
-            },
-            "license": [
-                "GPL-3.0-or-later"
-            ],
-            "description": "DHL & Deutsche Post integration for Shiptastic",
-            "homepage": "https://github.com/vendidero/dhl-for-shiptastic",
-            "support": {
-                "source": "https://github.com/vendidero/dhl-for-shiptastic/tree/v3.6.5"
-            },
-            "install-path": "../../packages/dhl-for-shiptastic"
-        },
-        {
             "name": "vendidero/shiptastic-for-woocommerce",
-            "version": "4.3.8",
-            "version_normalized": "4.3.8.0",
+            "version": "4.3.11",
+            "version_normalized": "4.3.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vendidero/shiptastic-for-woocommerce.git",
-                "reference": "9b9003c0f5d5961433a3bede93900aedc732fdf6"
+                "reference": "a919d1ec83d38c45bf62cd6c9d741aa5d203af52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vendidero/shiptastic-for-woocommerce/zipball/9b9003c0f5d5961433a3bede93900aedc732fdf6",
-                "reference": "9b9003c0f5d5961433a3bede93900aedc732fdf6",
+                "url": "https://api.github.com/repos/vendidero/shiptastic-for-woocommerce/zipball/a919d1ec83d38c45bf62cd6c9d741aa5d203af52",
+                "reference": "a919d1ec83d38c45bf62cd6c9d741aa5d203af52",
                 "shasum": ""
             },
             "require": {
@@ -874,7 +707,7 @@
                 "woocommerce/woocommerce-sniffs": "^1.0.0",
                 "yoast/phpunit-polyfills": "^3.0"
             },
-            "time": "2025-04-07T13:22:13+00:00",
+            "time": "2025-06-10T10:16:36+00:00",
             "type": "wordpress-plugin",
             "installation-source": "dist",
             "autoload": {
@@ -905,9 +738,69 @@
             "description": "Shiptastic for WooCommerce",
             "homepage": "https://vendidero.de",
             "support": {
-                "source": "https://github.com/vendidero/shiptastic-for-woocommerce/tree/v4.3.8"
+                "source": "https://github.com/vendidero/shiptastic-for-woocommerce/tree/v4.3.11"
             },
             "install-path": "../../packages/shiptastic-for-woocommerce"
+        },
+        {
+            "name": "vendidero/shiptastic-integration-for-dhl",
+            "version": "3.8.1",
+            "version_normalized": "3.8.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vendidero/shiptastic-integration-for-dhl.git",
+                "reference": "69639453bc0006dae7fcce591b6605a8fc46955f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vendidero/shiptastic-integration-for-dhl/zipball/69639453bc0006dae7fcce591b6605a8fc46955f",
+                "reference": "69639453bc0006dae7fcce591b6605a8fc46955f",
+                "shasum": ""
+            },
+            "require": {
+                "automattic/jetpack-autoloader": "2.11.18",
+                "composer/installers": "^1.9.0",
+                "php": ">=5.6|>=7.0"
+            },
+            "require-dev": {
+                "woocommerce/woocommerce-sniffs": "^1.0.0"
+            },
+            "time": "2025-06-10T10:15:23+00:00",
+            "type": "wordpress-plugin",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Vendidero\\Shiptastic\\DHL\\": "src"
+                }
+            },
+            "scripts": {
+                "post-install-cmd": [
+                    "sh ./bin/package-update.sh",
+                    "python3 ./bin/update-holidays.py"
+                ],
+                "post-update-cmd": [
+                    "sh ./bin/package-update.sh",
+                    "python3 ./bin/update-holidays.py"
+                ],
+                "phpcs": [
+                    "phpcs -s -p"
+                ],
+                "phpcs-pre-commit": [
+                    "phpcs -s -p -n"
+                ],
+                "phpcbf": [
+                    "phpcbf -p"
+                ]
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "description": "DHL & Deutsche Post integration for Shiptastic",
+            "homepage": "https://github.com/vendidero/shiptastic-integration-for-dhl",
+            "support": {
+                "source": "https://github.com/vendidero/shiptastic-integration-for-dhl/tree/v3.8.1"
+            },
+            "install-path": "../../packages/shiptastic-integration-for-dhl"
         },
         {
             "name": "vendidero/woocommerce-eu-tax-helper",

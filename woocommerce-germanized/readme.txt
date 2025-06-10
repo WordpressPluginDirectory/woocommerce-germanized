@@ -4,8 +4,8 @@ Tags: woocommerce, germany, germany, deutsch, woo
 Requires at least: 5.4
 Tested up to: 6.8
 WC requires at least: 3.9
-WC tested up to: 9.8
-Stable tag: 3.19.8
+WC tested up to: 9.9
+Stable tag: 3.19.11
 Requires PHP: 5.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -206,6 +206,30 @@ Bug reports may be filed via our [GitHub repository](https://github.com/vendider
 6. Edit pdf documents (Pro)
 
 == Changelog ==
+= 3.19.11 =
+* New: Woo 9.9 compatibility
+* Improvement: Woo transactional email improvement support for custom processing text
+* Improvement: Allow creating manufactures in brand context
+* Fix: Manufacturer bulk edit support
+* Fix: Shiptastic: Do not pass retry parameter in body args to prevent API error messages
+* Fix: Shiptastic: Boxpacker expects the max weight to include empty packaging weight
+* Fix: Shiptastic: DHL Internetmarke auth issue
+
+= 3.19.10 =
+* New: Migrate to Internetmarke REST API
+* New: Shipping rule condition to target subtotals before discount
+* New: Allow manufactures to be linked to brands instead of direct linking to products
+* Improvement: Support DHL participation number import via API when changing user
+* Improvement: Assembled Bundles compatibility
+* Improvement: Unit price observation
+* Fix: Patch a Woo bug which leads to manually created orders not receiving the prices_include_tax property
+
+= 3.19.9 =
+* Improvement: Support previewing E-Mails
+* Fix: Prevent removing nonces in case multiple gzd submit buttons are visible (theme incompatibilities)
+* Fix: Prevent querying pickup locations in case location does not match provider
+* Fix: Defensive checks: Prevent undefined array key error in cart
+
 = 3.19.8 =
 * New: Indicate UPS Shiptastic Integration availability
 * Improvement: Email title replacement in Shiptastic emails

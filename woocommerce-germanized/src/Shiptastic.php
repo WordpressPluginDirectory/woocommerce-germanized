@@ -57,6 +57,11 @@ class Shiptastic {
 		add_action( 'woocommerce_shiptastic_shipments_table_custom_column', array( __CLASS__, 'legacy_action_callback' ), 10, 2 );
 
 		/**
+		 * E-Mail Tracking in legacy templates
+		 */
+		add_action( 'woocommerce_gzd_email_shipment_details', array( __CLASS__, 'shiptastic_action_callback' ), 10, 4 );
+
+		/**
 		 * DHL Hooks
 		 */
 		add_filter( 'woocommerce_shiptastic_dhl_label_custom_format', array( __CLASS__, 'legacy_filter_callback' ), 10, 3 );
@@ -176,6 +181,12 @@ class Shiptastic {
 		do_action( "{$filter_name}", ...$args );
 	}
 
+	public static function shiptastic_action_callback( ...$args ) {
+		$filter_name = self::get_shiptastic_hook_name( current_filter() );
+
+		do_action( "{$filter_name}", ...$args );
+	}
+
 	protected static function get_legacy_filters_with_prefix() {
 		return array(
 			'woocommerce_shiptastic_init',
@@ -193,6 +204,12 @@ class Shiptastic {
 		} else {
 			$hook = str_replace( 'woocommerce_shiptastic_', 'woocommerce_gzd_', $hook );
 		}
+
+		return $hook;
+	}
+
+	protected static function get_shiptastic_hook_name( $hook ) {
+		$hook = str_replace( 'woocommerce_gzd_', 'woocommerce_shiptastic_', $hook );
 
 		return $hook;
 	}
@@ -224,14 +241,14 @@ class Shiptastic {
 							'countries_supported' => array( 'DE' ),
 							'is_builtin'          => true,
 							'is_pro'              => false,
-							'extension_name'      => 'dhl-for-shiptastic',
+							'extension_name'      => 'shiptastic-integration-for-dhl',
 						),
 						'deutsche_post' => array(
 							'title'               => _x( 'Deutsche Post', 'shipments', 'woocommerce-germanized' ),
 							'countries_supported' => array( 'DE' ),
 							'is_builtin'          => true,
 							'is_pro'              => false,
-							'extension_name'      => 'dhl-for-shiptastic',
+							'extension_name'      => 'shiptastic-integration-for-dhl',
 						),
 						'dpd'           => array(
 							'title'               => _x( 'DPD', 'shipments', 'woocommerce-germanized' ),

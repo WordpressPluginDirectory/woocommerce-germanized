@@ -4,6 +4,7 @@ namespace Vendidero\Shiptastic;
 
 use Automattic\WooCommerce\StoreApi\Utilities\CartController;
 use Exception;
+use Vendidero\Shiptastic\Interfaces\ShippingProvider;
 use WC_Order;
 use WP_Query;
 
@@ -33,6 +34,22 @@ class PickupDelivery {
 		add_filter( 'woocommerce_update_order_review_fragments', array( __CLASS__, 'register_order_review_fragments' ), 10, 1 );
 		add_action( 'woocommerce_after_checkout_validation', array( __CLASS__, 'register_classic_checkout_validation' ), 10, 2 );
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'register_classic_checkout_order_data' ), 10, 2 );
+
+		/**
+		 * Some themes/page builder may not fire the woocommerce_after_checkout_form hook. Fallback to wp_footer instead.
+		 */
+		add_action(
+			'wp_footer',
+			function () {
+				if ( ! function_exists( 'is_checkout' ) || ! function_exists( 'is_checkout_pay_page' ) ) {
+					return;
+				}
+
+				if ( is_checkout() && ! is_checkout_pay_page() && ! did_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after' ) && ! did_action( 'woocommerce_after_checkout_form' ) ) {
+					self::pickup_location_search_modal();
+				}
+			}
+		);
 
 		add_action( 'wp_ajax_woocommerce_stc_search_pickup_locations', array( __CLASS__, 'search_pickup_locations' ) );
 		add_action( 'wp_ajax_nopriv_woocommerce_stc_search_pickup_locations', array( __CLASS__, 'search_pickup_locations' ) );
@@ -226,7 +243,7 @@ class PickupDelivery {
 
 				$current_location_code = self::get_pickup_location_code_by_customer( $customer );
 
-				if ( $current_location_code ) {
+				if ( $current_location_code && self::pickup_location_code_belongs_to_provider( $current_location_code, $provider ) ) {
 					if ( $current_location = $provider->get_pickup_location_by_code( $current_location_code, $result['address'] ) ) {
 						if ( $retrieve_locations ) {
 							$result['locations'][] = $current_location;
@@ -322,7 +339,7 @@ class PickupDelivery {
 							<?php do_action( 'woocommerce_shiptastic_pickup_delivery_modal_actions' ); ?>
 						</div>
 
-						<?php wp_nonce_field( 'wc-shiptastic-search-pickup-location' ); ?>
+						<?php wp_nonce_field( 'wc-shiptastic-search-pickup-location', 'wc_stc_search_pickup_location_nonce' ); ?>
 					</form>
 				</article>
 			</div>
@@ -343,11 +360,15 @@ class PickupDelivery {
 		if ( $shipment_order = wc_stc_get_shipment_order( $order ) ) {
 			$order->delete_meta_data( '_pickup_location_address' );
 
-			if ( $provider = $shipment_order->get_shipping_provider() ) {
-				if ( is_a( $provider, 'Vendidero\Shiptastic\Interfaces\ShippingProviderAuto' ) ) {
-					if ( $location = $provider->get_pickup_location_by_code( $code, $order->get_address( 'shipping' ) ) ) {
-						$code = $location->get_code();
-						$order->update_meta_data( '_pickup_location_address', $location->get_address() );
+			if ( ! empty( $code ) ) {
+				if ( $provider = $shipment_order->get_shipping_provider() ) {
+					if ( is_a( $provider, 'Vendidero\Shiptastic\Interfaces\ShippingProviderAuto' ) ) {
+						if ( $provider->supports_pickup_locations() ) {
+							if ( $location = $provider->get_pickup_location_by_code( $code, $order->get_address( 'shipping' ) ) ) {
+								$code = $location->get_code();
+								$order->update_meta_data( '_pickup_location_address', $location->get_address() );
+							}
+						}
 					}
 				}
 			}
@@ -694,7 +715,7 @@ class PickupDelivery {
 	}
 
 	public static function search_pickup_locations() {
-		check_ajax_referer( 'wc-shiptastic-search-pickup-location' );
+		check_ajax_referer( 'wc-shiptastic-search-pickup-location', 'wc_stc_search_pickup_location_nonce' );
 
 		$postcode  = isset( $_POST['pickup_location_postcode'] ) ? wc_clean( wp_unslash( $_POST['pickup_location_postcode'] ) ) : '';
 		$address_1 = isset( $_POST['pickup_location_address'] ) ? wc_clean( wp_unslash( $_POST['pickup_location_address'] ) ) : '';
@@ -1041,6 +1062,23 @@ class PickupDelivery {
 		}
 
 		return apply_filters( 'woocommerce_shiptastic_shipment_pickup_location_delivery_available_for_customer', $supports_pickup_delivery, $customer_id );
+	}
+
+	/**
+	 * @param $code
+	 * @param ShippingProvider $provider
+	 *
+	 * @return bool
+	 */
+	public static function pickup_location_code_belongs_to_provider( $code, $provider ) {
+		$location_code_parts = wc_stc_get_pickup_location_code_parts( $code );
+		$belongs_to_provider = true;
+
+		if ( ! empty( $location_code_parts['shipping_provider'] ) && $location_code_parts['shipping_provider'] !== $provider->get_name() ) {
+			$belongs_to_provider = false;
+		}
+
+		return $belongs_to_provider;
 	}
 
 	public static function get_pickup_location_code_by_customer( $customer_id = false ) {

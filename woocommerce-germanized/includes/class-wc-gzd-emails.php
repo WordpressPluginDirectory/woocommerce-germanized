@@ -180,22 +180,84 @@ class WC_GZD_Emails {
 		add_action( 'woocommerce_order_status_pending_to_completed_notification', array( $this, 'send_manual_order_confirmation' ), 10 );
 		add_action( 'woocommerce_order_status_pending_to_on-hold_notification', array( $this, 'send_manual_order_confirmation' ), 10 );
 
+		add_filter( 'woocommerce_email_classes', array( $this, 'maybe_register_default_email_preview_fallback' ) );
+		add_action( 'woocommerce_prepare_email_for_preview', array( $this, 'preview_email' ), 10 );
+
 		if ( is_admin() ) {
 			$this->admin_hooks();
 		}
 	}
 
+	public function preview_email( $email_instance ) {
+		if ( is_a( $email_instance, 'WC_GZD_Email_Customer_SEPA_Direct_Debit_Mandate' ) ) {
+			$email_instance->gateway = new WC_GZD_Gateway_Direct_Debit();
+		} elseif ( is_a( $email_instance, 'WC_GZD_Email_Customer_Revocation' ) ) {
+			$email_instance->object = array(
+				'content'           => 'Hiermit widerrufe ich meinen Vertrag.',
+				'order_date'        => wc_format_datetime( $email_instance->object->get_date_created() ),
+				'address_firstname' => 'Max',
+				'address_lastname'  => 'Mustermann',
+				'address_street'    => 'Musterstr. 12',
+				'address_postal'    => '12345',
+				'address_city'      => 'Berlin',
+				'address_mail'      => 'max@muster.de',
+			);
+		} elseif ( is_a( $email_instance, 'WC_GZD_Email_Customer_New_Account_Activation' ) ) {
+			$email_instance->user_activation     = '12345';
+			$email_instance->user_activation_url = WC_GZD_Customer_Helper::instance()->get_customer_activation_url( $email_instance->user_activation );
+		}
+
+		return $email_instance;
+	}
+
+	/**
+	 * By default, Woo tries to preview WC_Email_Customer_Processing_Order which is overridden by Germanized.
+	 * As the email preview uses get_class to check the actual class instance (which is WC_GZD_Email_Customer_Processing_Order)
+	 * the email type is missing. Register a fallback type to prevent the initial error.
+	 *
+	 * @param $email_classes
+	 *
+	 * @return mixed
+	 */
+	public function maybe_register_default_email_preview_fallback( $email_classes ) {
+		$is_wc_admin_preview = isset( $_SERVER['REQUEST_URI'] ) ? false !== strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), trailingslashit( rest_get_url_prefix() ) . 'wc-admin-email/' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$is_preview_request  = isset( $_GET['preview_woocommerce_mail'] ) || $is_wc_admin_preview; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$type                = isset( $_REQUEST['type'] ) ? wc_clean( wp_unslash( $_REQUEST['type'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $is_preview_request ) {
+			if ( $is_wc_admin_preview ) {
+				$request_body = file_get_contents( 'php://input' );
+
+				if ( ! empty( $request_body ) ) {
+					$request_body = json_decode( $request_body, true );
+
+					if ( ! empty( $request_body['type'] ) ) {
+						$type = wc_clean( wp_unslash( $request_body['type'] ) );
+					}
+				}
+			}
+
+			if ( 'WC_Email_Customer_Processing_Order' === $type ) {
+				if ( file_exists( WC_ABSPATH . '/includes/emails/class-wc-email-customer-processing-order.php' ) ) {
+					$email_classes['Original_Processing_Order'] = include WC_ABSPATH . '/includes/emails/class-wc-email-customer-processing-order.php';
+				}
+			}
+		}
+
+		return $email_classes;
+	}
+
 	public function checkout_block_payment_context_confirmation_callback( $context, $payment_result ) {
+		wc_gzd_remove_all_hooks( 'woocommerce_rest_checkout_process_payment_with_context', 1005 );
+
 		$order = $context->order;
 		$this->confirm_order( $order );
-
-		wc_gzd_remove_all_hooks( 'woocommerce_rest_checkout_process_payment_with_context', 1005 );
 	}
 
 	public function checkout_block_no_payment_context_confirmation_callback( $redirect, $order ) {
-		$this->confirm_order( $order );
-
 		wc_gzd_remove_all_hooks( 'woocommerce_get_checkout_order_received_url', 1005 );
+
+		$this->confirm_order( $order );
 
 		return $redirect;
 	}
@@ -391,13 +453,15 @@ class WC_GZD_Emails {
 		$mails = $mailer->get_emails();
 
 		foreach ( $mails as $mail ) {
-			$mail->form_fields['bcc'] = array(
-				'title'       => __( 'BCC recipients', 'woocommerce-germanized' ),
-				'type'        => 'text',
-				'description' => __( 'Enter blind-copy recipients (comma separated) for this email.', 'woocommerce-germanized' ),
-				'placeholder' => '',
-				'default'     => '',
-			);
+			if ( $mail && isset( $mail->form_fields ) ) {
+				$mail->form_fields['bcc'] = array(
+					'title'       => __( 'BCC recipients', 'woocommerce-germanized' ),
+					'type'        => 'text',
+					'description' => __( 'Enter blind-copy recipients (comma separated) for this email.', 'woocommerce-germanized' ),
+					'placeholder' => '',
+					'default'     => '',
+				);
+			}
 		}
 	}
 
@@ -527,13 +591,33 @@ class WC_GZD_Emails {
 	}
 
 	public function print_processing_email_text( $order ) {
+		$email_improvements_enabled = false;
+
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			$email_improvements_enabled = Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'email_improvements' );
+		}
+
+		/**
+		 * In case email improvements are enabled, Woo adds a separate div to the summary of the email.
+		 * In this case, empty p-tags (leftovers of the gettext strings that Germanized removes) cause additional spacing.
+		 */
+		if ( $email_improvements_enabled ) {
+			echo '<div style="margin-top: -32px;">';
+		}
+
 		echo wp_kses_post( wpautop( wptexturize( $this->get_processing_email_text( $order ) ) ) );
+
+		if ( $email_improvements_enabled ) {
+			echo '</div>';
+		}
 	}
 
 	public function replace_processing_email_text( $translated, $original, $domain ) {
 		if ( 'woocommerce' === $domain ) {
 			$search = array(
 				'Just to let you know &mdash; we\'ve received your order #%s, and it is now being processed:',
+				'Just to let you know &mdash; we’ve received your order, and it is now being processed.',
+				'Here’s a reminder of what you’ve ordered:',
 				'Just to let you know &mdash; your payment has been confirmed, and order #%s is now being processed:',
 				'Your order has been received and is now being processed. Your order details are shown below for your reference:',
 			);

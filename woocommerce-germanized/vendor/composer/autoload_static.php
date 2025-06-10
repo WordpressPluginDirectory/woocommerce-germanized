@@ -4,10 +4,9 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
+class ComposerStaticInit47b8cd72b20e011f845fe6c58759d56a
 {
     public static $files = array (
-        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '241d2bc730dc592f76425fee315639b6' => __DIR__ . '/..' . '/globalcitizen/php-iban/oophp-iban.php',
         'ac2da84b5f360a33c0c760ac23936bfb' => __DIR__ . '/..' . '/globalcitizen/php-iban/php-iban.php',
     );
@@ -16,10 +15,6 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         's' => 
         array (
             'setasign\\Fpdi\\' => 14,
-        ),
-        'b' => 
-        array (
-            'baltpeter\\Internetmarke\\' => 24,
         ),
         'V' => 
         array (
@@ -36,7 +31,6 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         array (
             'Digitick\\Sepa\\' => 14,
             'Defuse\\Crypto\\' => 14,
-            'DeepCopy\\' => 9,
             'DVDoug\\BoxPacker\\' => 17,
         ),
         'C' => 
@@ -54,13 +48,9 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
         ),
-        'baltpeter\\Internetmarke\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke',
-        ),
         'Vendidero\\Shiptastic\\DHL\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src',
+            0 => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src',
         ),
         'Vendidero\\Shiptastic\\' => 
         array (
@@ -85,10 +75,6 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         'Defuse\\Crypto\\' => 
         array (
             0 => __DIR__ . '/..' . '/defuse/php-encryption/src',
-        ),
-        'DeepCopy\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
         'DVDoug\\BoxPacker\\' => 
         array (
@@ -268,32 +254,6 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         'DVDoug\\BoxPacker\\WeightRedistributorTest' => __DIR__ . '/..' . '/dvdoug/boxpacker/tests/WeightRedistributorTest.php',
         'DVDoug\\BoxPacker\\WorkingVolume' => __DIR__ . '/..' . '/dvdoug/boxpacker/src/WorkingVolume.php',
         'DVDoug\\BoxPacker\\WorkingVolumeTest' => __DIR__ . '/..' . '/dvdoug/boxpacker/tests/WorkingVolumeTest.php',
-        'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
-        'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',
-        'DeepCopy\\Exception\\PropertyException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/PropertyException.php',
-        'DeepCopy\\Filter\\ChainableFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/ChainableFilter.php',
-        'DeepCopy\\Filter\\Doctrine\\DoctrineCollectionFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/Doctrine/DoctrineCollectionFilter.php',
-        'DeepCopy\\Filter\\Doctrine\\DoctrineEmptyCollectionFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/Doctrine/DoctrineEmptyCollectionFilter.php',
-        'DeepCopy\\Filter\\Doctrine\\DoctrineProxyFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/Doctrine/DoctrineProxyFilter.php',
-        'DeepCopy\\Filter\\Filter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/Filter.php',
-        'DeepCopy\\Filter\\KeepFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/KeepFilter.php',
-        'DeepCopy\\Filter\\ReplaceFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/ReplaceFilter.php',
-        'DeepCopy\\Filter\\SetNullFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Filter/SetNullFilter.php',
-        'DeepCopy\\Matcher\\Doctrine\\DoctrineProxyMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/Doctrine/DoctrineProxyMatcher.php',
-        'DeepCopy\\Matcher\\Matcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/Matcher.php',
-        'DeepCopy\\Matcher\\PropertyMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/PropertyMatcher.php',
-        'DeepCopy\\Matcher\\PropertyNameMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/PropertyNameMatcher.php',
-        'DeepCopy\\Matcher\\PropertyTypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Matcher/PropertyTypeMatcher.php',
-        'DeepCopy\\Reflection\\ReflectionHelper' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Reflection/ReflectionHelper.php',
-        'DeepCopy\\TypeFilter\\Date\\DateIntervalFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DateIntervalFilter.php',
-        'DeepCopy\\TypeFilter\\Date\\DatePeriodFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Date/DatePeriodFilter.php',
-        'DeepCopy\\TypeFilter\\ReplaceFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ReplaceFilter.php',
-        'DeepCopy\\TypeFilter\\ShallowCopyFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/ShallowCopyFilter.php',
-        'DeepCopy\\TypeFilter\\Spl\\ArrayObjectFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/ArrayObjectFilter.php',
-        'DeepCopy\\TypeFilter\\Spl\\SplDoublyLinkedList' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/SplDoublyLinkedList.php',
-        'DeepCopy\\TypeFilter\\Spl\\SplDoublyLinkedListFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/SplDoublyLinkedListFilter.php',
-        'DeepCopy\\TypeFilter\\TypeFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/TypeFilter.php',
-        'DeepCopy\\TypeMatcher\\TypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeMatcher/TypeMatcher.php',
         'Defuse\\Crypto\\Core' => __DIR__ . '/..' . '/defuse/php-encryption/src/Core.php',
         'Defuse\\Crypto\\Crypto' => __DIR__ . '/..' . '/defuse/php-encryption/src/Crypto.php',
         'Defuse\\Crypto\\DerivedKeys' => __DIR__ . '/..' . '/defuse/php-encryption/src/DerivedKeys.php',
@@ -453,6 +413,8 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         'Vendidero\\Shiptastic\\Admin\\BulkLabel' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/BulkLabel.php',
         'Vendidero\\Shiptastic\\Admin\\MetaBox' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/MetaBox.php',
         'Vendidero\\Shiptastic\\Admin\\PackagingSettings' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/PackagingSettings.php',
+        'Vendidero\\Shiptastic\\Admin\\Preview\\ReturnShipment' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/Preview/ReturnShipment.php',
+        'Vendidero\\Shiptastic\\Admin\\Preview\\Shipment' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/Preview/Shipment.php',
         'Vendidero\\Shiptastic\\Admin\\ReturnTable' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/ReturnTable.php',
         'Vendidero\\Shiptastic\\Admin\\Settings' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/Settings.php',
         'Vendidero\\Shiptastic\\Admin\\Table' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Admin/Table.php',
@@ -484,58 +446,59 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         'Vendidero\\Shiptastic\\Compatibility\\ShipmentTracking' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Compatibility/ShipmentTracking.php',
         'Vendidero\\Shiptastic\\Compatibility\\TranslatePress' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Compatibility/TranslatePress.php',
         'Vendidero\\Shiptastic\\Compatibility\\WPML' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Compatibility/WPML.php',
-        'Vendidero\\Shiptastic\\DHL\\Admin\\Admin' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Admin/Admin.php',
-        'Vendidero\\Shiptastic\\DHL\\Admin\\Importer\\DHL' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Admin/Importer/DHL.php',
-        'Vendidero\\Shiptastic\\DHL\\Admin\\Importer\\Internetmarke' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Admin/Importer/Internetmarke.php',
-        'Vendidero\\Shiptastic\\DHL\\Ajax' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Ajax.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ApiKeyAuth' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ApiKeyAuth.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\AuthSoap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/AuthSoap.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\BasicAuthPaket' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/BasicAuthPaket.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\BasicAuthParcelServices' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/BasicAuthParcelServices.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ImPartnerInformation' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ImPartnerInformation.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ImProductList' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ImProductList.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ImProductsSoap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ImProductsSoap.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ImRefundSoap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ImRefundSoap.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\Internetmarke' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/Internetmarke.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\LabelRest' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/LabelRest.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\LabelSoap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/LabelSoap.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\LocationFinder' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/LocationFinder.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\OAuthPaket' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/OAuthPaket.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\Paket' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/Paket.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\PaketRest' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/PaketRest.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ParcelServices' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ParcelServices.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\ReturnRest' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/ReturnRest.php',
-        'Vendidero\\Shiptastic\\DHL\\Api\\Soap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Api/Soap.php',
-        'Vendidero\\Shiptastic\\DHL\\Blocks\\Assets' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Blocks/Assets.php',
-        'Vendidero\\Shiptastic\\DHL\\Blocks\\Integrations\\PreferredServices' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Blocks/Integrations/PreferredServices.php',
-        'Vendidero\\Shiptastic\\DHL\\Blocks\\PreferredServices' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Blocks/PreferredServices.php',
-        'Vendidero\\Shiptastic\\DHL\\Bootstrap' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Bootstrap.php',
-        'Vendidero\\Shiptastic\\DHL\\Install' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Install.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\DHL' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/DHL.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\DHLInlayReturn' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/DHLInlayReturn.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\DHLReturn' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/DHLReturn.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\DeutschePost' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/DeutschePost.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\DeutschePostReturn' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/DeutschePostReturn.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\Label' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/Label.php',
-        'Vendidero\\Shiptastic\\DHL\\Label\\ReturnLabel' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Label/ReturnLabel.php',
-        'Vendidero\\Shiptastic\\DHL\\Order' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Order.php',
-        'Vendidero\\Shiptastic\\DHL\\Package' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Package.php',
-        'Vendidero\\Shiptastic\\DHL\\ParcelLocator' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ParcelLocator.php',
-        'Vendidero\\Shiptastic\\DHL\\ParcelServices' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ParcelServices.php',
-        'Vendidero\\Shiptastic\\DHL\\Product' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/Product.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\DHL' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/DHL.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\DeutschePost' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/DeutschePost.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\PickupDeliveryTrait' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/PickupDeliveryTrait.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\PickupLocation' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/PickupLocation.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\AdditionalInsurance' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/AdditionalInsurance.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\CashOnDelivery' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/CashOnDelivery.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\ClosestDropPoint' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/ClosestDropPoint.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\DHLRetoure' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/DHLRetoure.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\IdentCheck' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/IdentCheck.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredDay' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/PreferredDay.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredLocation' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/PreferredLocation.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredNeighbour' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/PreferredNeighbour.php',
-        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\VisualCheckOfAge' => __DIR__ . '/../..' . '/packages/dhl-for-shiptastic/src/ShippingProvider/Services/VisualCheckOfAge.php',
+        'Vendidero\\Shiptastic\\DHL\\Admin\\Admin' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Admin/Admin.php',
+        'Vendidero\\Shiptastic\\DHL\\Admin\\Importer\\DHL' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Admin/Importer/DHL.php',
+        'Vendidero\\Shiptastic\\DHL\\Admin\\Importer\\Internetmarke' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Admin/Importer/Internetmarke.php',
+        'Vendidero\\Shiptastic\\DHL\\Ajax' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Ajax.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\ApiKeyAuth' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/ApiKeyAuth.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\AuthSoap' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/AuthSoap.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\BasicAuthPaket' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/BasicAuthPaket.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\BasicAuthParcelServices' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/BasicAuthParcelServices.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\ImProductList' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/ImProductList.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\ImProductsSoap' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/ImProductsSoap.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\Internetmarke' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/Internetmarke.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\InternetmarkeAuth' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/InternetmarkeAuth.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\InternetmarkeRest' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/InternetmarkeRest.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\LabelRest' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/LabelRest.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\LabelSoap' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/LabelSoap.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\LocationFinder' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/LocationFinder.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\MyAccount' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/MyAccount.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\OAuthPaket' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/OAuthPaket.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\Paket' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/Paket.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\PaketRest' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/PaketRest.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\ParcelServices' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/ParcelServices.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\ReturnRest' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/ReturnRest.php',
+        'Vendidero\\Shiptastic\\DHL\\Api\\Soap' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Api/Soap.php',
+        'Vendidero\\Shiptastic\\DHL\\Blocks\\Assets' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Blocks/Assets.php',
+        'Vendidero\\Shiptastic\\DHL\\Blocks\\Integrations\\PreferredServices' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Blocks/Integrations/PreferredServices.php',
+        'Vendidero\\Shiptastic\\DHL\\Blocks\\PreferredServices' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Blocks/PreferredServices.php',
+        'Vendidero\\Shiptastic\\DHL\\Bootstrap' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Bootstrap.php',
+        'Vendidero\\Shiptastic\\DHL\\Install' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Install.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\DHL' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/DHL.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\DHLInlayReturn' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/DHLInlayReturn.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\DHLReturn' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/DHLReturn.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\DeutschePost' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/DeutschePost.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\DeutschePostReturn' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/DeutschePostReturn.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\Label' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/Label.php',
+        'Vendidero\\Shiptastic\\DHL\\Label\\ReturnLabel' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Label/ReturnLabel.php',
+        'Vendidero\\Shiptastic\\DHL\\Order' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Order.php',
+        'Vendidero\\Shiptastic\\DHL\\Package' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Package.php',
+        'Vendidero\\Shiptastic\\DHL\\ParcelLocator' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ParcelLocator.php',
+        'Vendidero\\Shiptastic\\DHL\\ParcelServices' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ParcelServices.php',
+        'Vendidero\\Shiptastic\\DHL\\Product' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/Product.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\DHL' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/DHL.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\DeutschePost' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/DeutschePost.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\PickupDeliveryTrait' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/PickupDeliveryTrait.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\PickupLocation' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/PickupLocation.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\AdditionalInsurance' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/AdditionalInsurance.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\CashOnDelivery' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/CashOnDelivery.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\ClosestDropPoint' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/ClosestDropPoint.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\DHLRetoure' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/DHLRetoure.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\IdentCheck' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/IdentCheck.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredDay' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/PreferredDay.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredLocation' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/PreferredLocation.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\PreferredNeighbour' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/PreferredNeighbour.php',
+        'Vendidero\\Shiptastic\\DHL\\ShippingProvider\\Services\\VisualCheckOfAge' => __DIR__ . '/../..' . '/packages/shiptastic-integration-for-dhl/src/ShippingProvider/Services/VisualCheckOfAge.php',
         'Vendidero\\Shiptastic\\DataStores\\Label' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/DataStores/Label.php',
         'Vendidero\\Shiptastic\\DataStores\\Packaging' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/DataStores/Packaging.php',
         'Vendidero\\Shiptastic\\DataStores\\Shipment' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/DataStores/Shipment.php',
@@ -622,27 +585,6 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
         'Vendidero\\Shiptastic\\Utilities\\NumberUtil' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Utilities/NumberUtil.php',
         'Vendidero\\Shiptastic\\Utilities\\VariableStreamHandler' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Utilities/VariableStreamHandler.php',
         'Vendidero\\Shiptastic\\Validation' => __DIR__ . '/../..' . '/packages/shiptastic-for-woocommerce/src/Validation.php',
-        'baltpeter\\Internetmarke\\Address' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Address.php',
-        'baltpeter\\Internetmarke\\AddressBinding' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/AddressBinding.php',
-        'baltpeter\\Internetmarke\\ApiResult' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/ApiResult.php',
-        'baltpeter\\Internetmarke\\CompanyName' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/CompanyName.php',
-        'baltpeter\\Internetmarke\\LabelCount' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/LabelCount.php',
-        'baltpeter\\Internetmarke\\LabelSpacing' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/LabelSpacing.php',
-        'baltpeter\\Internetmarke\\Margin' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Margin.php',
-        'baltpeter\\Internetmarke\\Name' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Name.php',
-        'baltpeter\\Internetmarke\\NamedAddress' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/NamedAddress.php',
-        'baltpeter\\Internetmarke\\OrderItem' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/OrderItem.php',
-        'baltpeter\\Internetmarke\\PageFormat' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PageFormat.php',
-        'baltpeter\\Internetmarke\\PageLayout' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PageLayout.php',
-        'baltpeter\\Internetmarke\\PartnerInformation' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PartnerInformation.php',
-        'baltpeter\\Internetmarke\\PersonName' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PersonName.php',
-        'baltpeter\\Internetmarke\\PortokasseCharge' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PortokasseCharge.php',
-        'baltpeter\\Internetmarke\\Position' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Position.php',
-        'baltpeter\\Internetmarke\\PublicGalleryItem' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/PublicGalleryItem.php',
-        'baltpeter\\Internetmarke\\Service' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Service.php',
-        'baltpeter\\Internetmarke\\Size' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/Size.php',
-        'baltpeter\\Internetmarke\\StampPngResult' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/StampPngResult.php',
-        'baltpeter\\Internetmarke\\User' => __DIR__ . '/..' . '/baltpeter/internetmarke-php/src/baltpeter/Internetmarke/User.php',
         'setasign\\Fpdi\\FpdfTpl' => __DIR__ . '/..' . '/setasign/fpdi/src/FpdfTpl.php',
         'setasign\\Fpdi\\FpdfTplTrait' => __DIR__ . '/..' . '/setasign/fpdi/src/FpdfTplTrait.php',
         'setasign\\Fpdi\\FpdfTrait' => __DIR__ . '/..' . '/setasign/fpdi/src/FpdfTrait.php',
@@ -699,9 +641,9 @@ class ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitb410eb33b401c1df1ebb95234f1e6552::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit47b8cd72b20e011f845fe6c58759d56a::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit47b8cd72b20e011f845fe6c58759d56a::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit47b8cd72b20e011f845fe6c58759d56a::$classMap;
 
         }, null, ClassLoader::class);
     }
