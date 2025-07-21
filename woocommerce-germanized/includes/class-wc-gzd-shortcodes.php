@@ -376,19 +376,6 @@ class WC_GZD_Shortcodes {
 			'dispute' => wc_gzd_get_dispute_resolution_text(),
 		);
 
-		foreach ( $texts as $key => $text ) {
-			$texts[ $key ] = wpautop(
-				str_replace(
-					array(
-						'https://ec.europa.eu/consumers/odr',
-						'http://ec.europa.eu/consumers/odr/',
-					),
-					'<a href="https://ec.europa.eu/consumers/odr" target="_blank">https://ec.europa.eu/consumers/odr</a>',
-					$text
-				)
-			);
-		}
-
 		if ( $atts['text_only'] ) {
 			$texts['dispute'] = preg_replace( '%<p(.*?)>|</p>%s', '', $texts['dispute'] );
 		}
@@ -429,7 +416,6 @@ class WC_GZD_Shortcodes {
 	 * @return string
 	 */
 	public static function payment_methods_info( $atts ) {
-
 		WC_GZD_Payment_Gateways::instance()->manipulate_gateways();
 
 		ob_start();

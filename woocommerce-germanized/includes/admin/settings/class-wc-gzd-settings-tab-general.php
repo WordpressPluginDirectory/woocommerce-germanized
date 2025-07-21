@@ -217,7 +217,7 @@ class WC_GZD_Settings_Tab_General extends WC_GZD_Settings_Tab {
 				'title'    => __( 'Resolution Text', 'woocommerce-germanized' ),
 				'desc'     => __( 'Adapt this example text regarding alternative dispute resolution to your needs. Text will be added to the [gzd_complaints] Shortcode. You may as well add this text to your terms & conditions.', 'woocommerce-germanized' ),
 				'desc_tip' => true,
-				'default'  => __( 'The european commission provides a platform for online dispute resolution (OS) which is accessible at https://ec.europa.eu/consumers/odr. We are not obliged nor willing to participate in dispute settlement proceedings before a consumer arbitration board.', 'woocommerce-germanized' ),
+				'default'  => __( 'We are not obliged nor willing to participate in dispute settlement proceedings before a consumer arbitration board.', 'woocommerce-germanized' ),
 				'css'      => 'width:100%; height: 65px;',
 				'id'       => 'woocommerce_gzd_alternative_complaints_text_none',
 				'type'     => 'textarea',
@@ -226,7 +226,7 @@ class WC_GZD_Settings_Tab_General extends WC_GZD_Settings_Tab {
 				'title'    => __( 'Resolution Text', 'woocommerce-germanized' ),
 				'desc'     => __( 'Adapt this example text regarding alternative dispute resolution to your needs. Text will be added to the [gzd_complaints] Shortcode. You may as well add this text to your terms & conditions.', 'woocommerce-germanized' ),
 				'desc_tip' => true,
-				'default'  => __( 'The european commission provides a platform for online dispute resolution (OS) which is accessible at https://ec.europa.eu/consumers/odr. Consumers may use this platform for the settlements of their disputes. We are in principle prepared to participate in an extrajudicial arbitration proceeding.', 'woocommerce-germanized' ),
+				'default'  => __( 'We are in principle prepared to participate in an extrajudicial arbitration proceeding.', 'woocommerce-germanized' ),
 				'css'      => 'width:100%; height: 65px;',
 				'id'       => 'woocommerce_gzd_alternative_complaints_text_willing',
 				'type'     => 'textarea',
@@ -235,7 +235,7 @@ class WC_GZD_Settings_Tab_General extends WC_GZD_Settings_Tab {
 				'title'    => __( 'Resolution Text', 'woocommerce-germanized' ),
 				'desc'     => __( 'Adapt this example text regarding alternative dispute resolution to your needs. Text will be added to the [gzd_complaints] Shortcode. You may as well add this text to your terms & conditions.', 'woocommerce-germanized' ),
 				'desc_tip' => true,
-				'default'  => __( 'The european commission provides a platform for online dispute resolution (OS) which is accessible at https://ec.europa.eu/consumers/odr. Consumers may contact [Name, Address, Website of arbitration board] for the settlements of their disputes. We are obliged to participate in arbitration proceeding before that board.', 'woocommerce-germanized' ),
+				'default'  => __( 'Consumers may contact [Name, Address, Website of arbitration board] for the settlements of their disputes. We are obliged to participate in arbitration proceeding before that board.', 'woocommerce-germanized' ),
 				'css'      => 'width:100%; height: 65px;',
 				'id'       => 'woocommerce_gzd_alternative_complaints_text_obliged',
 				'type'     => 'textarea',
@@ -294,7 +294,7 @@ class WC_GZD_Settings_Tab_General extends WC_GZD_Settings_Tab {
 	protected function get_checkout_settings() {
 		$shipping_methods_options = WC_GZD_Admin::instance()->get_shipping_method_instances_options();
 
-		return array(
+		$settings = array(
 			array(
 				'title' => '',
 				'type'  => 'title',
@@ -356,12 +356,44 @@ class WC_GZD_Settings_Tab_General extends WC_GZD_Settings_Tab {
 				),
 				'desc'              => '<div class="wc-gzd-additional-desc">' . __( 'Optionally choose methods which should be excluded from hiding when free shipping is available (e.g. express shipping options).', 'woocommerce-germanized' ) . '</div>',
 			),
-
-			array(
-				'type' => 'sectionend',
-				'id'   => 'checkout_options',
-			),
 		);
+
+		if ( WC_GZD_Payment_Gateways::instance()->enable_legacy_cod_fee() ) {
+			$settings = array_merge(
+				$settings,
+				array(
+					array(
+						'title'   => sprintf( __( 'COD fee (%s)', 'woocommerce-germanized' ), get_woocommerce_currency_symbol() ),
+						'id'      => 'woocommerce_gzd_checkout_cod_gateway_fee',
+						'type'    => 'text',
+						'class'   => 'wc_input_decimal',
+						'css'     => 'max-width: 150px;',
+						'default' => '',
+					),
+					array(
+						'title'   => sprintf( __( 'COD forwarding fee (%s)', 'woocommerce-germanized' ), get_woocommerce_currency_symbol() ),
+						'id'      => 'woocommerce_gzd_checkout_cod_gateway_forwarding_fee',
+						'type'    => 'text',
+						'desc'    => __( 'Forwarding fee will be charged by the transport agent in addition to the cash of delivery fee e.g. DHL - tax free.', 'woocommerce-germanized' ),
+						'class'   => 'wc_input_decimal',
+						'css'     => 'max-width: 150px;',
+						'default' => '',
+					),
+				)
+			);
+		}
+
+		$settings = array_merge(
+			$settings,
+			array(
+				array(
+					'type' => 'sectionend',
+					'id'   => 'checkout_options',
+				),
+			)
+		);
+
+		return $settings;
 	}
 
 	protected function get_shop_settings() {
